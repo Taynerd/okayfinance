@@ -1,0 +1,282 @@
+* {
+  box-sizing: border-box;
+  text-decoration: none;
+}
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: #f4f6fb;
+}
+/* ===== TOPBAR ===== */
+/* ===== TOPBAR ===== */
+.topbar {
+  height: 56px;
+  background: #192641;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  position: relative;
+  z-index: 200; /* acima do menu */
+}
+.app-name{
+  margin: 0;
+}
+/* botão hamburguer */
+.menu-btn {
+  width: 26px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  z-index: 210; /* garante que o X fique visível */
+}
+
+.menu-btn span {
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  transition: 0.3s ease;
+}
+
+/* animação X */
+.menu-btn.active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn.active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* ===== MENU ===== */
+
+/* overlay (fundo escuro) */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  z-index: 100;
+}
+
+.menu-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* painel lateral — ISSO limita para 60% */
+.menu-panel {
+  width: 60vw;
+  max-width: 320px;
+  height: 100%;
+  background: #0f172a;
+
+  transform: translateX(-100%);
+  transition: transform 0.35s ease;
+}
+
+/* painel entra */
+.menu-overlay.active .menu-panel {
+  transform: translateX(0);
+}
+
+/* conteúdo */
+.menu-content {
+  padding: 80px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* links */
+.menu-content a {
+  color: white;
+  font-size: 20px;
+  text-decoration: none;
+
+  opacity: 0;
+  transform: translateX(-12px);
+  animation: menuItemIn 0.4s ease forwards;
+  animation-delay: calc(var(--i) * 0.08s);
+}
+
+/* reset ao fechar */
+.menu-overlay:not(.active) .menu-content a {
+  animation: none;
+  opacity: 0;
+  transform: translateX(-12px);
+}
+
+@keyframes menuItemIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.dashboard {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.cartoes {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.cartao {
+  min-width: 200px;
+  padding: 16px;
+  border-radius: 16px;
+  color: white;
+}
+
+.cartao.nubank {
+  background: #7c3aed;
+}
+.cartao.itau {
+  background: #1033fc;
+}
+.cartao.bradesco {
+  background: #c20505d3;
+}
+.cartao.santander {
+  background: #ac0303;
+}
+.cartao.xp {
+  background: #000000;
+}
+.cartao.inter {
+  background: #fa6800;
+}
+.cartao.MP {
+  background: #2884b9;
+}
+.cartao.dp {
+  background: #479804;
+  color: black;
+}
+.analise-fat {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.35);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.analise-fat:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: white;
+}
+
+input,
+select{
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.add {
+  background: #1f2937;
+  color: white;
+  border: none;
+  margin-top: 12px;
+    width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.toast {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.toast::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* caixa */
+.toast-message {
+  background: #111827;
+  color: white;
+  padding: 16px 22px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+
+  transform: scale(0.92);
+  opacity: 0;
+  transition: all 0.35s ease;
+}
+
+/* ativo */
+.toast.active::before {
+  opacity: 1;
+}
+
+.toast.active .toast-message {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* variações */
+.toast.success .toast-message {
+  background: #166534;
+}
+
+.toast.error .toast-message {
+  background: #7f1d1d;
+}
+
+
+
+

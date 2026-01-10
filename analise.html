@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Análise da Fatura</title>
+  <link rel="stylesheet" href="analise.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1 id="tituloBanco">Fatura</h1>
+</header>
+
+<main class="container">
+
+  <div class="controle-mes">
+    <button id="prevMes">◀</button>
+    <span id="mesAtual"></span>
+    <button id="nextMes">▶</button>
+  </div>
+
+  <section class="card">
+    <table class="tabela-fatura">
+      <thead>
+        <tr>
+          <th>Gasto</th>
+          <th>Categoria</th>
+          <th>Parcela</th>
+          <th>Valor</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="listaGastos"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Total da fatura</td>
+          <td id="totalFatura">R$ 0,00</td>
+        </tr>
+      </tfoot>
+    </table>
+    
+    <button class="limpar-fatura" onclick="limparFaturaMes()">
+  Limpar fatura 
+</button>
+  </section>
+
+</main>
+
+<script src="analise.js"></script>
+</body>
+</html>

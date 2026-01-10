@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Finora</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <button id="menuBtn" class="menu-btn" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <h1 class="app-name">Finora</h1>
+    </header>
+
+    <nav id="menu" class="menu-overlay">
+      <div class="menu-panel">
+        <div class="menu-content">
+          <a href="#" style="--i: 1">📊 Resumo</a>
+          <a href="#" style="--i: 2">➕ Entradas</a>
+          <a href="#" style="--i: 3">💳 Cartões</a>
+          <a href="#" style="--i: 4">🧾 Gastos</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="dashboard">
+      <!-- RESUMO -->
+<section class="card">
+  <h2>Entradas</h2>
+
+  <input id="entradaDescricao" placeholder="Descrição" />
+  <input id="entradaValor" type="number" placeholder="Valor" />
+  <button class="add" onclick="adicionarEntrada()">Adicionar</button>
+
+  <p id="msgEntrada" class="msg"></p>
+
+  <button class="ver-ganhos add" onclick="irParaEntradas()">
+    Meus ganhos
+  </button>
+
+      <!-- CARTÕES -->
+      <section class="card">
+        <h2>Cartões de Crédito</h2>
+
+        <div class="cartoes">
+          <div class="cartao bradesco">
+            <p>Bradesco</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="bradesco">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="bradesco">
+              Visualizar
+            </button>
+          </div>
+
+          <div class="cartao itau">
+            <p>Itaú</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="itau">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="itau">Visualizar</button>
+          </div>
+
+          <div class="cartao xp">
+            <p>XP</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="XP">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="xp">Visualizar</button>
+          </div>
+          <div class="cartao nubank">
+            <p>Nubank</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="nubank">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="nubank">Visualizar</button>
+          </div>
+          <div class="cartao santander">
+            <p>Santander</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="santander">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="santander">
+              Visualizar
+            </button>
+          </div>
+          <div class="cartao inter">
+            <p>Inter</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="inter">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="inter">Visualizar</button>
+          </div>
+          <div class="cartao MP">
+            <p>Mercado pago</p>
+            <strong
+              >Fatura: R$
+              <span class="fatura" data-banco="mp">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="mp">Visualizar</button>
+          </div>
+          <div class="cartao dp">
+            <p>Dinheiro ou pix</p>
+            <strong
+              >Gasto: R$
+              <span class="fatura" data-banco=" dp ">0,00</span></strong
+            >
+            <button class="analise-fat" data-banco="dp">Visualizar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- GASTOS -->
+      <section class="card">
+        <h2>Adicionar Gasto</h2>
+        <input id="nome" placeholder="Nome do gasto" />
+        <input id="valor" type="number" placeholder="Valor" />
+
+        <select id="categoria">
+          <option>Alimentação</option>
+          <option>Lazer</option>
+          <option>Transporte</option>
+        </select>
+        
+        <select id="banco">
+          <option value="nubank">Nubank</option>
+          <option value="itau">Itaú</option>
+          <option value="bradesco">Bradesco</option>
+          <option value="xp">XP</option>
+          <option value="santander">Santander</option>
+          <option value="inter">Inter</option>
+          <option value="mp">Mercado Pago</option>
+          <option value="dp">Dinheiro / Pix</option>
+        </select>
+
+        <select id="tipo">
+          <option value="credito">Crédito</option>
+          <option value="parcelado">Parcelado</option>
+        </select>
+
+        <select id="mesFatura">
+          <option value="0">Janeiro</option>
+          <option value="1">Fevereiro</option>
+          <option value="2">Março</option>
+          <option value="3">Abril</option>
+          <option value="4">Maio</option>
+          <option value="5">Junho</option>
+          <option value="6">Julho</option>
+          <option value="7">Agosto</option>
+          <option value="8">Setembro</option>
+          <option value="9">Outubro</option>
+          <option value="10">Novembro</option>
+          <option value="11">Dezembro</option>
+        </select>
+
+        <input
+          id="parcelas"
+          type="number"
+          placeholder="Qtd parcelas (se houver)"
+        />
+        <button class="add" onclick="adicionarGasto()">Adicionar gasto</button>
+      </section>
+
+
+
+    <script src="app.js"></script>
+    <div id="toast" class="toast"></div>
+  </body>
+</html>
