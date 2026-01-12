@@ -13,7 +13,7 @@
         <span></span>
         <span></span>
       </button>
-      <h1 class="app-name">Finora</h1>
+      <h1 class="app-name">MY FINANCE</h1>
     </header>
 
     <nav id="menu" class="menu-overlay">
@@ -26,6 +26,53 @@
         </div>
       </div>
     </nav>
+<!-- DASHBOARD ANALISE -->
+ <section class="card dashboard-resumo">
+  <h2>Resumo Financeiro</h2>
+
+  <div class="valores">
+    <div>
+      <span>Entradas</span>
+      <strong id="totalEntradasDash">R$ 0,00</strong>
+    </div>
+    <div>
+      <span>Gastos</span>
+      <strong id="totalGastosDash">R$ 0,00</strong>
+    </div>
+    <div class="saldo">
+      <span>Saldo</span>
+      <strong id="saldoDash">R$ 0,00</strong>
+    </div>
+  </div>
+
+  <!-- gráfico -->
+  <div class="grafico-wrapper">
+    <svg width="160" height="160">
+      <circle
+        cx="80"
+        cy="80"
+        r="70"
+        stroke="#e5e7eb"
+        stroke-width="14"
+        fill="none"
+      />
+      <circle
+        id="graficoSaldo"
+        cx="80"
+        cy="80"
+        r="70"
+        stroke="#22c55e"
+        stroke-width="14"
+        fill="none"
+        stroke-linecap="round"
+        stroke-dasharray="439"
+        stroke-dashoffset="439"
+        transform="rotate(-90 80 80)"
+      />
+    </svg>
+    <div class="grafico-label" id="percentualSaldo">0%</div>
+  </div>
+</section>
 
     <main class="dashboard">
       <!-- RESUMO -->
@@ -40,6 +87,18 @@
 
   <button class="ver-ganhos add" onclick="irParaEntradas()">
     Meus ganhos
+  </button>
+
+  <h2>Gastos Fixos</h2>
+
+  <input id="fixoDescricao" placeholder="Descrição" />
+  <input id="fixoValor" type="number" placeholder="Valor" />
+  <button class="add" onclick="adicionarGFixo()">Adicionar</button>
+
+  <p id="msgEntrada" class="msg"></p>
+
+  <button class="ver-gasto add" onclick="irParaGastosFixos()">
+    Meus gastos
   </button>
 
       <!-- CARTÕES -->
@@ -113,7 +172,7 @@
             <p>Dinheiro ou pix</p>
             <strong
               >Gasto: R$
-              <span class="fatura" data-banco=" dp ">0,00</span></strong
+              <span class="fatura" data-banco="dp">0,00</span></strong
             >
             <button class="analise-fat" data-banco="dp">Visualizar</button>
           </div>
@@ -130,6 +189,12 @@
           <option>Alimentação</option>
           <option>Lazer</option>
           <option>Transporte</option>
+          <option>Farmácia</option>
+          <option>Imprevisto</option>
+          <option>mercado</option>
+          <option>Casa</option>
+          <option>Pessoal 1</option>
+          <option>Pessoal 2</option>
         </select>
         
         <select id="banco">
@@ -174,6 +239,8 @@
 
 
     <script src="app.js"></script>
+    <script src="dashboard.js"></script>
     <div id="toast" class="toast"></div>
+    
   </body>
 </html>

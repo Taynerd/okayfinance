@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meus Ganhos</title>
+  <link rel="stylesheet" href="analise.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Gastos Fixos</h1>
+</header>
+
+<main class="container">
+
+  <div class="controle-mes">
+    <button id="prevMes">◀</button>
+    <span id="mesAtual"></span>
+    <button id="nextMes">▶</button>
+  </div>
+
+  <section class="card">
+    <table class="tabela-fatura">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody id="listaEntradas"></tbody>
+      <tfoot>
+        <tr>
+          <td>Total</td>
+          <td id="totalEntradas">R$ 0,00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+</main>
+
+<script src="fixos.js"></script>
+</body>
+</html>

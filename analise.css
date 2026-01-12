@@ -80,3 +80,89 @@ body {
   font-size: 16px;
   cursor: pointer;
 }
+/* gasto por categoria */
+/* overlay */
+.relatorio-categoria {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* ativo */
+.relatorio-categoria.active {
+  display: flex;
+}
+.add{
+    margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cad7fe;
+  background: #fff;
+  color: #1b2c99;
+  border-radius: 8px;
+  font-weight: 500;
+}
+/* card */
+.relatorio-card {
+  background: white;
+  width: 90%;
+  max-width: 360px;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+/* botão fechar */
+.relatorio-card .fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 20px;
+}
+
+/* gráfico */
+.grafico-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.barra span {
+  font-size: 12px;
+  width: 80px;
+}
+
+.barra .progresso {
+  flex: 1;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barra .fill {
+  height: 100%;
+  width: 0;
+  background: #6366f1;
+  transition: width 0.6s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

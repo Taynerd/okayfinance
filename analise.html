@@ -47,6 +47,20 @@
 
 </main>
 
+<button class="ver-relatorio add" onclick="abrirRelatorio()">
+  📊 Ver relatório por categoria
+</button>
+
+<section id="relatorioCategoria" class="relatorio-categoria">
+  <div class="relatorio-card">
+    <button class="fechar" onclick="fecharRelatorio()">✕</button>
+    <h3>Gastos por categoria</h3>
+
+    <div class="grafico-categorias" id="graficoCategorias"></div>
+  </div>
+</section>
+
+
 <script src="analise.js"></script>
 </body>
 </html>

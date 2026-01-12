@@ -36,14 +36,13 @@ function adicionarEntrada() {
     return;
   }
 
-entradas.push({
-  id: crypto.randomUUID(), // 🔑 ESSENCIAL
-  descricao: desc.value,
-  valor: Number(valor.value),
-  mes: new Date().getMonth(),
-  ano: new Date().getFullYear()
-});
-
+  entradas.push({
+    id: crypto.randomUUID(), // 🔑 ESSENCIAL
+    descricao: desc.value,
+    valor: Number(valor.value),
+    mes: new Date().getMonth(),
+    ano: new Date().getFullYear(),
+  });
 
   localStorage.setItem("entradas", JSON.stringify(entradas));
 
@@ -51,6 +50,42 @@ entradas.push({
   valor.value = "";
 
   showToast("Entrada adicionada com sucesso ✔");
+  atualizarDashboard();
+}
+
+/*********************
+ * gastos fixos
+ *********************/
+let gastosFixos = JSON.parse(localStorage.getItem("gastosFixos")) || [];
+
+function adicionarGFixo() {
+  const desc = document.getElementById("fixoDescricao");
+  const valor = document.getElementById("fixoValor");
+
+  if (!desc.value || !valor.value || Number(valor.value) <= 0) {
+    showToast("Preencha descrição e valor válido.", "error");
+    return;
+  }
+
+  gastosFixos.push({
+    id: crypto.randomUUID(), // 🔑 essencial
+    descricao: desc.value,
+    valor: Number(valor.value),
+    mes: new Date().getMonth(),
+    ano: new Date().getFullYear(),
+  });
+
+  localStorage.setItem("gastosFixos", JSON.stringify(gastosFixos));
+
+  desc.value = "";
+  valor.value = "";
+
+  showToast("Gasto fixo adicionado com sucesso ✔");
+  atualizarDashboard();
+}
+function irParaGastosFixos() {
+  window.location.href = "fixos.html";
+
 }
 
 /*********************
@@ -102,6 +137,7 @@ function adicionarGasto() {
   showToast("Gasto adicionado com sucesso ✔");
 
   renderizarCardsFatura();
+  atualizarDashboard();
 }
 
 /*********************
@@ -160,6 +196,7 @@ function adicionarGasto() {
   // 🔹 Feedback ao usuário
   showToast("Gasto adicionado com sucesso ✔");
   renderizarCardsFatura();
+  atualizarDashboard();
 }
 //atualiza card da fatura
 function renderizarCardsFatura() {
@@ -193,7 +230,7 @@ function renderizarCardsFatura() {
 }
 
 /*********************
- * DIRECIONA PARA A FATURA CERTA
+ * DECIONA PARA A FATURA CERTA
  *********************/
 document.querySelectorAll(".analise-fat").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -247,7 +284,12 @@ function renderizarCardsFatura() {
 
 document.addEventListener("DOMContentLoaded", renderizarCardsFatura);
 
-document.querySelector(".ver-ganhos")
-  .addEventListener("click", () => {
-    window.location.href = "entradas.html";
-  });
+document.querySelector(".ver-ganhos").addEventListener("click", () => {
+  window.location.href = "entradas.html";
+});
+
+function atualizarDashboard() {
+  if (typeof calcularDashboard === "function") {
+    calcularDashboard();
+  }
+}

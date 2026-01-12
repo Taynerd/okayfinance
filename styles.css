@@ -2,17 +2,37 @@
   box-sizing: border-box;
   text-decoration: none;
 }
+:root {
+  --bg-main: #0f0f0f; /* preto suave */
+  --bg-app: #ababab; /* fundo geral */
+  --bg-card: #fafafa; /* cards */
+  --bg-muted: #e5e7eb; /* bordas / inputs */
+
+  --text-main: #111827; /* texto principal */
+  --text-muted: #6b7280; /* texto secundário */
+  --text-invert: #ffffff; /* texto sobre fundo escuro */
+
+  --primary: #111827; /* botões principais */
+  --primary-hover: #000000;
+
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #22c55e;
+}
+
 body {
   margin: 0;
   font-family: Inter, Arial, sans-serif;
-  background: #f4f6fb;
+  background: var(--bg-app);
+  color: var(--text-main);
 }
 /* ===== TOPBAR ===== */
 /* ===== TOPBAR ===== */
 .topbar {
   height: 56px;
-  background: #192641;
-  color: white;
+  background: var(--bg-main);
+  color: var(--text-invert);
+  border-bottom: 1px solid #1f1f1f;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -20,7 +40,7 @@ body {
   position: relative;
   z-index: 200; /* acima do menu */
 }
-.app-name{
+.app-name {
   margin: 0;
 }
 /* botão hamburguer */
@@ -63,12 +83,10 @@ body {
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
-
+  background: rgba(0, 0, 0, 0.45);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-
   z-index: 100;
 }
 
@@ -83,7 +101,6 @@ body {
   max-width: 320px;
   height: 100%;
   background: #0f172a;
-
   transform: translateX(-100%);
   transition: transform 0.35s ease;
 }
@@ -106,7 +123,6 @@ body {
   color: white;
   font-size: 20px;
   text-decoration: none;
-
   opacity: 0;
   transform: translateX(-12px);
   animation: menuItemIn 0.4s ease forwards;
@@ -128,17 +144,19 @@ body {
 }
 
 .dashboard {
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
+.dashboard-resumo{
+  border-radius: px;
+  margin-bottom: 2px;
+}
 .card {
-  background: white;
-  border-radius: 16px;
+  background: var(--bg-card);
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--bg-muted);
 }
 
 .cartoes {
@@ -151,7 +169,8 @@ body {
   min-width: 200px;
   padding: 16px;
   border-radius: 16px;
-  color: white;
+  color: var(--text-invert);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 .cartao.nubank {
@@ -179,12 +198,13 @@ body {
   background: #479804;
   color: black;
 }
+
 .analise-fat {
   width: 100%;
   margin-top: 12px;
   padding: 10px 12px;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -198,12 +218,12 @@ body {
 }
 
 .analise-fat:hover {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   border-color: white;
 }
 
 input,
-select{
+select {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
@@ -212,11 +232,11 @@ select{
 }
 
 .add {
-  background: #1f2937;
-  color: white;
+ background: var(--primary);
+  color: var(--text-invert);
   border: none;
   margin-top: 12px;
-    width: 100%;
+  width: 100%;
   padding: 10px;
   margin-top: 8px;
   border-radius: 10px;
@@ -238,7 +258,7 @@ select{
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(2px);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -277,6 +297,45 @@ select{
   background: #7f1d1d;
 }
 
+/* ANALISE DASHBOARD */
+.dashboard-resumo {
+  text-align: center;
+}
 
+.dashboard-resumo .valores {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
+.dashboard-resumo span {
+  font-size: 12px;
+  color: #6b7280;
+}
 
+.dashboard-resumo strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+.dashboard-resumo .saldo strong {
+  color: #22c55e;
+}
+
+.grafico-wrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.grafico-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+}
