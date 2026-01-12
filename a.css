@@ -1,0 +1,32 @@
+/* cores individuais */
+.cartao.nubank { background: linear-gradient(135deg,#6d28d9,#7c3aed); }
+.cartao.itau { background: linear-gradient(135deg,#1e3a8a,#2563eb); }
+.cartao.bradesco { background: linear-gradient(135deg,#991b1b,#dc2626); }
+.cartao.santander { background: linear-gradient(135deg,#7f1d1d,#b91c1c); }
+.cartao.xp { background: linear-gradient(135deg,#000,#1f2937); }
+.cartao.inter { background: linear-gradient(135deg,#ea580c,#fb923c); }
+.cartao.MP { background: linear-gradient(135deg,#0369a1,#38bdf8); }
+.cartao.dp {
+  background: linear-gradient(135deg,#166534,#22c55e);
+  color: #022c22;
+}
+
+:root {
+  --bg-app: #0b0d10;
+  --bg-topbar: #0f1117;
+  --bg-card: #131722;
+  --bg-card-soft: #181c28;
+
+  --border-soft: rgba(255,255,255,0.06);
+
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-invert: #ffffff;
+
+  --primary: #ffffff;
+  --primary-hover: #e5e7eb;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}

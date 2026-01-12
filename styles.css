@@ -3,22 +3,25 @@
   text-decoration: none;
 }
 :root {
-  --bg-main: #0f0f0f; /* preto suave */
-  --bg-app: #ababab; /* fundo geral */
-  --bg-card: #fafafa; /* cards */
-  --bg-muted: #e5e7eb; /* bordas / inputs */
+  --bg-app: #0b0d10;
+  --bg-topbar: #0f1117;
+  --bg-card: #131722;
+  --bg-card-soft: #181c28;
 
-  --text-main: #111827; /* texto principal */
-  --text-muted: #6b7280; /* texto secundário */
-  --text-invert: #ffffff; /* texto sobre fundo escuro */
+  --border-soft: rgba(255,255,255,0.06);
 
-  --primary: #111827; /* botões principais */
-  --primary-hover: #000000;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-invert: #ffffff;
 
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --primary: #ffffff;
+  --primary-hover: #e5e7eb;
+
   --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 }
+
 
 body {
   margin: 0;
@@ -42,6 +45,7 @@ body {
 }
 .app-name {
   margin: 0;
+  font-size: 1.3rem;
 }
 /* botão hamburguer */
 .menu-btn {
@@ -152,6 +156,9 @@ body {
   border-radius: px;
   margin-bottom: 2px;
 }
+.dashboard-resumo h2{
+  font-size: 1.3rem;
+}
 .card {
   background: var(--bg-card);
   padding: 16px;
@@ -173,31 +180,16 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-.cartao.nubank {
-  background: #7c3aed;
-}
-.cartao.itau {
-  background: #1033fc;
-}
-.cartao.bradesco {
-  background: #c20505d3;
-}
-.cartao.santander {
-  background: #ac0303;
-}
-.cartao.xp {
-  background: #000000;
-}
-.cartao.inter {
-  background: #fa6800;
-}
-.cartao.MP {
-  background: #2884b9;
-}
+.cartao.nubank { background: linear-gradient(135deg,#6d28d9,#7c3aed); }
+.cartao.itau { background: linear-gradient(135deg,#1e3a8a,#2563eb); }
+.cartao.bradesco { background: linear-gradient(135deg,#991b1b,#dc2626); }
+.cartao.santander { background: linear-gradient(135deg,#7f1d1d,#b91c1c); }
+.cartao.xp { background: linear-gradient(135deg,#000,#1f2937); }
+.cartao.inter { background: linear-gradient(135deg,#ea580c,#fb923c); }
+.cartao.MP { background: linear-gradient(135deg,#0369a1,#38bdf8); }
 .cartao.dp {
-  background: #479804;
-  color: black;
-}
+  background: linear-gradient(135deg,#166534,#22c55e);
+  }
 
 .analise-fat {
   width: 100%;
@@ -227,20 +219,25 @@ select {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card-soft);
+  color: var(--text-main);
 }
 
 .add {
  background: var(--primary);
-  color: var(--text-invert);
   border: none;
   margin-top: 12px;
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  border-radius: 10px;
+  border-radius: 14px;
   border: 1px solid #ddd;
+  font-weight: 600;
+}
+input::placeholder {
+  color: var(--text-muted);
 }
 
 .toast {
