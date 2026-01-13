@@ -79,6 +79,8 @@ function removerGasto(id) {
 
   render();
   atualizarDashboard();
+  renderizarCardsFatura();
+  atualizarLimites();
 }
 
 function limparFaturaMes() {
@@ -187,19 +189,19 @@ function renderGraficoCategorias() {
       }
     });
 
-const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
+  const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
 
-const coresCategorias = {
-  "Alimentação": "#ef4444",   // vermelho
-  "Lazer": "#f59e0b",         // laranja
-  "Transporte": "#3b82f6",    // azul
-  "Farmácia": "#22c55e",      // verde
-  "Imprevisto": "#a855f7",    // roxo
-  "mercado": "#14b8a6",       // teal
-  "Casa": "#64748b",          // cinza
-  "Pessoal 1": "#ec4899",     // rosa
-  "Pessoal 2": "#8b5cf6"      // violeta
-};
+  const coresCategorias = {
+    Alimentação: "#ef4444", // vermelho
+    Lazer: "#f59e0b", // laranja
+    Transporte: "#3b82f6", // azul
+    Farmácia: "#22c55e", // verde
+    Imprevisto: "#a855f7", // roxo
+    mercado: "#14b8a6", // teal
+    Casa: "#64748b", // cinza
+    "Pessoal 1": "#ec4899", // rosa
+    "Pessoal 2": "#8b5cf6", // violeta
+  };
 
   function corCategoria(nome) {
     return coresCategorias[nome] || "#6366f1"; // fallback padrão
