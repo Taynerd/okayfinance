@@ -5,6 +5,9 @@ const menuBtn = document.getElementById("menuBtn");
 const menu = document.getElementById("menu");
 const menuPanel = document.querySelector(".menu-panel");
 
+let limites = JSON.parse(localStorage.getItem("limites")) || [];
+let gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+
 menuBtn.addEventListener("click", () => {
   const aberto = menu.classList.toggle("active");
   menuBtn.classList.toggle("active", aberto);
@@ -51,6 +54,7 @@ function adicionarEntrada() {
 
   showToast("Entrada adicionada com sucesso ✔");
   atualizarDashboard();
+  document.dispatchEvent(new Event("dadosAtualizados"));
 }
 
 /*********************
@@ -82,69 +86,18 @@ function adicionarGFixo() {
 
   showToast("Gasto fixo adicionado com sucesso ✔");
   atualizarDashboard();
+  document.dispatchEvent(new Event("dadosAtualizados"));
 }
 function irParaGastosFixos() {
   window.location.href = "fixos.html";
-
 }
 
 /*********************
- * GASTOS
+ * gastos
  *********************/
 function adicionarGasto() {
-  const nomeEl = document.getElementById("nome");
-  const valorEl = document.getElementById("valor");
-  const categoriaEl = document.getElementById("categoria");
-  const bancoEl = document.getElementById("banco");
-  const tipoEl = document.getElementById("tipo");
-  const parcelasEl = document.getElementById("parcelas");
-  const mesFaturaEl = document.getElementById("mesFatura");
+  // 🔹 Criação do gasto
 
-  const nome = nomeEl.value.trim();
-  const valor = Number(valorEl.value);
-  const parcelas = Number(parcelasEl.value) || 1;
-
-  if (!nome || valor <= 0) {
-    showToast("Preencha corretamente o nome e o valor.", "error");
-    return;
-  }
-
-  if (tipoEl.value === "parcelado" && parcelas < 2) {
-    showToast("Parcelamento precisa ter pelo menos 2 parcelas.", "error");
-    return;
-  }
-
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
-  gastos.push({
-    id: crypto.randomUUID(), // 🔑 obrigatório
-    nome,
-    valor,
-    categoria: categoriaEl.value,
-    banco: bancoEl.value,
-    tipo: tipoEl.value,
-    parcelas,
-    mesInicio: Number(mesFaturaEl.value),
-    anoInicio: new Date().getFullYear(),
-  });
-
-  localStorage.setItem("gastos", JSON.stringify(gastos));
-
-  nomeEl.value = "";
-  valorEl.value = "";
-  parcelasEl.value = "";
-
-  showToast("Gasto adicionado com sucesso ✔");
-
-  renderizarCardsFatura();
-  atualizarDashboard();
-}
-
-/*********************
- * FATURAS POR CARTÃO
- *********************/
-function adicionarGasto() {
-  // 🔹 Captura dos elementos
   const nomeEl = document.getElementById("nome");
   const valorEl = document.getElementById("valor");
   const categoriaEl = document.getElementById("categoria");
@@ -169,22 +122,17 @@ function adicionarGasto() {
     return;
   }
 
-  // 🔹 Fonte única da verdade
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
-  // 🔹 Criação do gasto
   gastos.push({
     id: crypto.randomUUID(), // 🔑 ESSENCIAL
     nome,
     valor,
-    categoria: categoriaEl.value,
+    categoria: categoriaEl.value.trim().toLowerCase(),
     banco: bancoEl.value,
     tipo: tipoEl.value,
     parcelas,
     mesInicio: Number(mesFaturaEl.value),
     anoInicio: new Date().getFullYear(),
   });
-
   // 🔹 Persistência
   localStorage.setItem("gastos", JSON.stringify(gastos));
 
@@ -196,15 +144,16 @@ function adicionarGasto() {
   // 🔹 Feedback ao usuário
   showToast("Gasto adicionado com sucesso ✔");
   renderizarCardsFatura();
+  atualizarLimites();
   atualizarDashboard();
+  document.dispatchEvent(new Event("dadosAtualizados"));
+
 }
 //atualiza card da fatura
 function renderizarCardsFatura() {
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
-
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
 
   document.querySelectorAll(".fatura").forEach((el) => {
     const bancoCard = el.dataset.banco;
@@ -230,7 +179,7 @@ function renderizarCardsFatura() {
 }
 
 /*********************
- * DECIONA PARA A FATURA CERTA
+ * DirECIONA PARA A FATURA CERTA
  *********************/
 document.querySelectorAll(".analise-fat").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -253,37 +202,6 @@ function showToast(message, type = "success", duration = 1000) {
   }, duration);
 }
 
-function renderizarCardsFatura() {
-  const hoje = new Date();
-  const mesAtual = hoje.getMonth();
-  const anoAtual = hoje.getFullYear();
-
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
-  document.querySelectorAll(".fatura").forEach((el) => {
-    const bancoCard = el.dataset.banco;
-    let total = 0;
-
-    gastos.forEach((g) => {
-      if (g.banco !== bancoCard) return;
-
-      for (let i = 0; i < g.parcelas; i++) {
-        const dataParcela = new Date(g.anoInicio, g.mesInicio + i);
-        if (
-          dataParcela.getMonth() === mesAtual &&
-          dataParcela.getFullYear() === anoAtual
-        ) {
-          total += g.valor / g.parcelas;
-        }
-      }
-    });
-
-    el.innerText = total.toFixed(2);
-  });
-}
-
-document.addEventListener("DOMContentLoaded", renderizarCardsFatura);
-
 document.querySelector(".ver-ganhos").addEventListener("click", () => {
   window.location.href = "entradas.html";
 });
@@ -292,4 +210,107 @@ function atualizarDashboard() {
   if (typeof calcularDashboard === "function") {
     calcularDashboard();
   }
+  
 }
+function criarLimite() {
+  const categoria = document
+    .getElementById("categoriaLimite")
+    .value.trim()
+    .toLowerCase();
+
+  const limite = Number(document.getElementById("limite").value);
+  if (!limite || limite <= 0) return;
+
+  const existente = limites.find((l) => l.categoria === categoria);
+
+  if (existente) {
+    existente.limite = limite;
+  } else {
+    limites.push({ categoria, limite });
+  }
+
+  salvarLimites();
+  atualizarLimites();
+  document.dispatchEvent(new Event("dadosAtualizados"));
+}
+
+function totalPorCategoria(categoria) {
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+
+  return gastos.reduce((total, g) => {
+    if (g.categoria !== categoria) return total;
+
+    for (let i = 0; i < g.parcelas; i++) {
+      const dataParcela = new Date(g.anoInicio, g.mesInicio + i);
+
+      if (
+        dataParcela.getMonth() === mesAtual &&
+        dataParcela.getFullYear() === anoAtual
+      ) {
+        total += g.valor / g.parcelas;
+      }
+    }
+
+    return total;
+  }, 0);
+}
+
+function atualizarLimites() {
+  const container = document.getElementById("listaLimites");
+  container.innerHTML = "";
+
+  limites.forEach((l) => {
+    const gastoAtual = totalPorCategoria(l.categoria);
+    const percentual = Math.min((gastoAtual / l.limite) * 100, 100);
+
+    const div = document.createElement("div");
+    div.className = "limite-card" + (gastoAtual >= l.limite ? " alerta" : "");
+
+   div.innerHTML = `
+  <div class="limite-header">
+    <span>${l.categoria}</span>
+
+    <div>
+      <span>R$ ${gastoAtual.toFixed(2)} / ${l.limite.toFixed(2)}</span>
+      <button 
+        class="remover-limite"
+        onclick="removerLimite('${l.categoria}')"
+        aria-label="Remover alerta"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <div class="barra">
+    <div class="progresso" style="width:${percentual}%"></div>
+  </div>
+
+  <small>${percentual.toFixed(0)}% do limite</small>
+`;
+
+
+    container.appendChild(div);
+  });
+}
+function salvarLimites() {
+  localStorage.setItem("limites", JSON.stringify(limites));
+}
+
+//remover alerta de limite
+function removerLimite(categoria) {
+  limites = limites.filter(l => l.categoria !== categoria);
+
+  salvarLimites();
+  atualizarLimites();
+
+  // avisa score / outras análises
+  document.dispatchEvent(new Event("dadosAtualizados"));
+}
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarLimites();
+  renderizarCardsFatura();
+  document.dispatchEvent(new Event("dadosAtualizados"));
+});

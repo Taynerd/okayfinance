@@ -27,7 +27,7 @@
       </div>
     </nav>
 <!-- DASHBOARD ANALISE -->
- <section class="card dashboard-resumo">
+<section class="card dashboard-resumo">
   <h2>Resumo Financeiro</h2>
 
   <div class="valores">
@@ -100,6 +100,35 @@
   <button class="ver-gasto add" onclick="irParaGastosFixos()">
     Meus gastos
   </button>
+
+ <!-- score -->
+<section class="card score-card">
+  <h2>Sua Saúde Financeira</h2>
+
+  <div class="score-gauge">
+    <svg viewBox="0 0 200 100" class="gauge">
+      <!-- trilha -->
+      <path
+        d="M10 100 A90 90 0 0 1 190 100"
+        class="gauge-bg"
+      />
+      <!-- progresso -->
+      <path
+        d="M10 100 A90 90 0 0 1 190 100"
+        class="gauge-progress"
+        id="gaugeProgress"
+      />
+    </svg>
+
+    <div class="score-center">
+      <div class="score-number" id="scoreValor">--</div>
+      <div class="score-status" id="scoreStatus">Analisando...</div>
+    </div>
+  </div>
+
+  <ul class="score-insights" id="scoreInsights"></ul>
+</section>
+
 
       <!-- CARTÕES -->
       <section class="card">
@@ -234,12 +263,38 @@
           placeholder="Qtd parcelas (se houver)"
         />
         <button class="add" onclick="adicionarGasto()">Adicionar gasto</button>
-      </section>
+</section>
 
+<section class="card">
+  <h2>Controle de Limites</h2>
+
+  <select id="categoriaLimite">
+    <option>Alimentação</option>
+    <option>Lazer</option>
+    <option>Transporte</option>
+    <option>Farmácia</option>
+    <option>Imprevisto</option>
+    <option>Mercado</option>
+    <option>Casa</option>
+    <option>Pessoal 1</option>
+    <option>Pessoal 2</option>
+  </select>
+
+  <input id="limite" type="number" placeholder="Limite da categoria" />
+  <p id="msgEntrada" class="msg"></p>
+
+  <button class="add" onclick="criarLimite()">Criar alerta</button>
+</section>
+
+<section class="card">
+  <h2>Alertas de Categoria</h2>
+  <div id="listaLimites"></div>
+</section>
 
 
     <script src="app.js"></script>
     <script src="dashboard.js"></script>
+    <script src="score.js"></script>
     <div id="toast" class="toast"></div>
     
   </body>

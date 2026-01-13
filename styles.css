@@ -336,3 +336,119 @@ input::placeholder {
   font-weight: 600;
   font-size: 18px;
 }
+.limite-card {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #0f1117;
+}
+
+.limite-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.barra {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progresso {
+  height: 100%;
+  background: #22c55e;
+  transition: width 0.3s;
+}
+
+.limite-card.alerta .progresso {
+  background: #ef4444;
+}
+
+.limite-card.alerta {
+  border: 2px solid #ef4444;
+  background: #fee2e2;
+}
+
+/* score */
+.score-gauge {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.gauge {
+  width: 100%;
+  height: auto;
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 12;
+}
+
+.gauge-progress {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.4s ease;
+}
+
+.score-center {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.score-number {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.score-status {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* cores por estado */
+.score-card.good .gauge-progress {
+  stroke: #16a34a;
+}
+
+.score-card.medium .gauge-progress {
+  stroke: #f59e0b;
+}
+
+.score-card.bad .gauge-progress {
+  stroke: #dc2626;
+}
+
+/* remover alerta de limite */
+.limite-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remover-limite {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.remover-limite:hover {
+  color: #ef4444;
+}
+

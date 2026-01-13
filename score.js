@@ -1,0 +1,151 @@
+
+
+
+function getMesAnoAtual() {
+  const hoje = new Date();
+  return {
+    mes: hoje.getMonth(),
+    ano: hoje.getFullYear(),
+  };
+}
+
+function totalEntradasMes() {
+  const { mes, ano } = getMesAnoAtual();
+  return entradas
+    .filter(e => e.mes === mes && e.ano === ano)
+    .reduce((s, e) => s + e.valor, 0);
+}
+
+function totalGastosMes() {
+  const { mes, ano } = getMesAnoAtual();
+
+  return gastos.reduce((total, g) => {
+    for (let i = 0; i < g.parcelas; i++) {
+      const data = new Date(g.anoInicio, g.mesInicio + i);
+      if (data.getMonth() === mes && data.getFullYear() === ano) {
+        total += g.valor / g.parcelas;
+      }
+    }
+    return total;
+  }, 0);
+}
+
+
+function categoriasComLimiteEstourado() {
+  if (!limites.length) return 0;
+
+  return limites.filter(l => {
+    const gasto = totalPorCategoria(l.categoria);
+    return gasto > l.limite;
+  }).length;
+}
+
+function percentualRendaComprometida() {
+  const entradas = totalEntradasMes();
+  if (entradas === 0) return 100;
+
+  return (totalGastosMes() / entradas) * 100;
+}
+
+function percentualParcelamentos() {
+  const total = totalGastosMes();
+  if (total === 0) return 0;
+
+  const parcelado = gastos
+    .filter(g => g.tipo === "parcelado")
+    .reduce((s, g) => s + g.valor / g.parcelas, 0);
+
+  return (parcelado / total) * 100;
+}
+
+
+function calcularScoreFinanceiro() {
+  let score = 100;
+  const insights = [];
+
+  const rendaComprometida = percentualRendaComprometida();
+  const limitesEstourados = categoriasComLimiteEstourado();
+  const percParcelado = percentualParcelamentos();
+
+  // 🔴 Renda comprometida
+  if (rendaComprometida > 100) {
+    score -= 30;
+    insights.push("Seus gastos ultrapassam sua renda este mês.");
+  } else if (rendaComprometida > 80) {
+    score -= 20;
+    insights.push("Mais de 80% da sua renda está comprometida.");
+  } else if (rendaComprometida > 60) {
+    score -= 10;
+    insights.push("Atenção: gastos acima de 60% da renda.");
+  }
+
+  // 🔴 Limites (se existirem)
+  if (limites.length > 0 && limitesEstourados > 0) {
+    score -= limitesEstourados * 10;
+    insights.push(`${limitesEstourados} categoria(s) ultrapassaram o limite.`);
+  }
+
+  // 🔴 Parcelamentos
+  if (percParcelado > 50) {
+    score -= 20;
+    insights.push("Mais de 50% dos gastos são parcelados.");
+  } else if (percParcelado > 30) {
+    score -= 10;
+    insights.push("Parcelamentos representam parcela relevante dos gastos.");
+  }
+
+  score = Math.max(score, 0);
+
+  return { score, insights };
+}
+
+
+function renderizarScore() {
+  const card = document.querySelector(".score-card");
+  if (!card) return;
+
+  const valorEl = document.getElementById("scoreValor");
+  const statusEl = document.getElementById("scoreStatus");
+  const insightsEl = document.getElementById("scoreInsights");
+  const gauge = document.getElementById("gaugeProgress");
+
+  const { score, insights } = calcularScoreFinanceiro();
+
+  // número
+  valorEl.innerText = score;
+
+  // classe visual
+  card.classList.remove("good", "medium", "bad");
+
+  if (score >= 80) {
+    card.classList.add("good");
+    statusEl.innerText = "Situação financeira saudável";
+  } else if (score >= 50) {
+    card.classList.add("medium");
+    statusEl.innerText = "Atenção aos gastos";
+  } else {
+    card.classList.add("bad");
+    statusEl.innerText = "Risco financeiro este mês";
+  }
+
+  // 🔹 cálculo do arco (0–100 → 0–180°)
+  const total = 283; // comprimento do arco
+  const progresso = total - (score / 100) * total;
+  gauge.style.strokeDashoffset = progresso;
+
+  // insights
+  insightsEl.innerHTML = "";
+  insights.forEach(i => {
+    const li = document.createElement("li");
+    li.innerText = i;
+    insightsEl.appendChild(li);
+  });
+
+  if (!insights.length) {
+    insightsEl.innerHTML = "<li>Ótimo controle financeiro neste mês 🎉</li>";
+  }
+}
+
+document.addEventListener("dadosAtualizados", () => {
+  renderizarScore();
+});

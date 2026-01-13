@@ -101,6 +101,7 @@ function removerGFixo(id) {
 
   render();
 }
+document.dispatchEvent(new Event("dadosAtualizados"));
 
 /*********************
  * CONTROLE DE MÊS
@@ -122,4 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
   garantirIds();
   render();
   atualizarDashboard();
+  document.dispatchEvent(new Event("dadosAtualizados"));
+
 });
