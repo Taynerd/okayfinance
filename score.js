@@ -1,6 +1,6 @@
-
-
-
+/*********************
+ * DATA ATUAL
+ *********************/
 function getMesAnoAtual() {
   const hoje = new Date();
   return {
@@ -9,6 +9,9 @@ function getMesAnoAtual() {
   };
 }
 
+/*********************
+ * TOTAIS
+ *********************/
 function totalEntradasMes() {
   const { mes, ano } = getMesAnoAtual();
   return entradas
@@ -30,7 +33,9 @@ function totalGastosMes() {
   }, 0);
 }
 
-
+/*********************
+ * MÉTRICAS
+ *********************/
 function categoriasComLimiteEstourado() {
   if (!limites.length) return 0;
 
@@ -41,10 +46,13 @@ function categoriasComLimiteEstourado() {
 }
 
 function percentualRendaComprometida() {
-  const entradas = totalEntradasMes();
-  if (entradas === 0) return 100;
+  const entradasMes = totalEntradasMes();
+  const gastosMes = totalGastosMes();
 
-  return (totalGastosMes() / entradas) * 100;
+  if (entradasMes === 0 && gastosMes === 0) return null; // estado inicial
+  if (entradasMes === 0 && gastosMes > 0) return 100;   // gastando sem renda
+
+  return (gastosMes / entradasMes) * 100;
 }
 
 function percentualParcelamentos() {
@@ -58,7 +66,9 @@ function percentualParcelamentos() {
   return (parcelado / total) * 100;
 }
 
-
+/*********************
+ * SCORE FINANCEIRO
+ *********************/
 function calcularScoreFinanceiro() {
   let score = 100;
   const insights = [];
@@ -67,7 +77,16 @@ function calcularScoreFinanceiro() {
   const limitesEstourados = categoriasComLimiteEstourado();
   const percParcelado = percentualParcelamentos();
 
-  // 🔴 Renda comprometida
+  // 🟡 ESTADO INICIAL
+  if (rendaComprometida === null) {
+    return {
+      score: 100,
+      estado: "inicial",
+      insights: ["Adicione suas entradas e gastos para iniciar a análise."]
+    };
+  }
+
+  // 🔴 RENDA COMPROMETIDA
   if (rendaComprometida > 100) {
     score -= 30;
     insights.push("Seus gastos ultrapassam sua renda este mês.");
@@ -79,13 +98,13 @@ function calcularScoreFinanceiro() {
     insights.push("Atenção: gastos acima de 60% da renda.");
   }
 
-  // 🔴 Limites (se existirem)
+  // 🔴 LIMITES DE CATEGORIA
   if (limites.length > 0 && limitesEstourados > 0) {
     score -= limitesEstourados * 10;
     insights.push(`${limitesEstourados} categoria(s) ultrapassaram o limite.`);
   }
 
-  // 🔴 Parcelamentos
+  // 🔴 PARCELAMENTOS
   if (percParcelado > 50) {
     score -= 20;
     insights.push("Mais de 50% dos gastos são parcelados.");
@@ -96,10 +115,16 @@ function calcularScoreFinanceiro() {
 
   score = Math.max(score, 0);
 
-  return { score, insights };
+  return {
+    score,
+    estado: "normal",
+    insights
+  };
 }
 
-
+/*********************
+ * RENDER SCORE (UI)
+ *********************/
 function renderizarScore() {
   const card = document.querySelector(".score-card");
   if (!card) return;
@@ -109,43 +134,49 @@ function renderizarScore() {
   const insightsEl = document.getElementById("scoreInsights");
   const gauge = document.getElementById("gaugeProgress");
 
-  const { score, insights } = calcularScoreFinanceiro();
+  const { score, estado, insights } = calcularScoreFinanceiro();
 
   // número
   valorEl.innerText = score;
 
-  // classe visual
+  // reset visual
   card.classList.remove("good", "medium", "bad");
 
-  if (score >= 80) {
-    card.classList.add("good");
-    statusEl.innerText = "Situação financeira saudável";
-  } else if (score >= 50) {
-    card.classList.add("medium");
-    statusEl.innerText = "Atenção aos gastos";
-  } else {
-    card.classList.add("bad");
-    statusEl.innerText = "Risco financeiro este mês";
-  }
+  const totalArco = 283;
 
-  // 🔹 cálculo do arco (0–100 → 0–180°)
-  const total = 283; // comprimento do arco
-  const progresso = total - (score / 100) * total;
-  gauge.style.strokeDashoffset = progresso;
+  // estado inicial
+  if (estado === "inicial") {
+    gauge.style.strokeDashoffset = totalArco;
+    card.classList.add("medium");
+    statusEl.innerText = "Complete seus dados financeiros";
+  } else {
+    const progresso = totalArco - (score / 100) * totalArco;
+    gauge.style.strokeDashoffset = progresso;
+
+    if (score >= 80) {
+      card.classList.add("good");
+      statusEl.innerText = "Situação financeira saudável";
+    } else if (score >= 50) {
+      card.classList.add("medium");
+      statusEl.innerText = "Atenção aos gastos";
+    } else {
+      card.classList.add("bad");
+      statusEl.innerText = "Risco financeiro este mês";
+    }
+  }
 
   // insights
   insightsEl.innerHTML = "";
-  insights.forEach(i => {
+  insights.forEach(texto => {
     const li = document.createElement("li");
-    li.innerText = i;
+    li.innerText = texto;
     insightsEl.appendChild(li);
   });
-
-  if (!insights.length) {
-    insightsEl.innerHTML = "<li>Ótimo controle financeiro neste mês 🎉</li>";
-  }
 }
 
+/*********************
+ * EVENTO GLOBAL
+ *********************/
 document.addEventListener("dadosAtualizados", () => {
   renderizarScore();
 });
