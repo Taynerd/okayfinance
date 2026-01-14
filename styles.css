@@ -488,13 +488,12 @@ input::placeholder {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0);
   border: none;
   color: #fff;
   font-size: 14px;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
 }
 
 .color-picker {
@@ -558,6 +557,7 @@ input::placeholder {
     vertical-align: middle;
   }
 
+  
   .col-remover {
     position: sticky;
     left: 0;
