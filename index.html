@@ -131,11 +131,12 @@
 
 
       <!-- CARTÕES -->
-      <section class="card">
+      <section class="card faturas">
         <h2>Cartões de Crédito</h2>
 
-        <div class="cartoes">
-          <div class="cartao bradesco">
+        <div class="cartoes" >
+          <div class="cartao bradesco" data-banco="bradesco">
+             <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Bradesco</p>
             <strong
               >Fatura: R$
@@ -146,7 +147,8 @@
             </button>
           </div>
 
-          <div class="cartao itau">
+          <div class="cartao itau" data-banco="itau">
+             <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Itaú</p>
             <strong
               >Fatura: R$
@@ -155,7 +157,8 @@
             <button class="analise-fat" data-banco="itau">Visualizar</button>
           </div>
 
-          <div class="cartao xp">
+          <div class="cartao xp" data-banco="XP">
+             <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>XP</p>
             <strong
               >Fatura: R$
@@ -163,7 +166,7 @@
             >
             <button class="analise-fat" data-banco="xp">Visualizar</button>
           </div>
-          <div class="cartao nubank">
+          <div class="cartao nubank" data-banco="nubank"> <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Nubank</p>
             <strong
               >Fatura: R$
@@ -171,7 +174,7 @@
             >
             <button class="analise-fat" data-banco="nubank">Visualizar</button>
           </div>
-          <div class="cartao santander">
+          <div class="cartao santander" data-banco="santander"> <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Santander</p>
             <strong
               >Fatura: R$
@@ -181,7 +184,7 @@
               Visualizar
             </button>
           </div>
-          <div class="cartao inter">
+          <div class="cartao inter" data-banco="inter"> <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Inter</p>
             <strong
               >Fatura: R$
@@ -189,7 +192,7 @@
             >
             <button class="analise-fat" data-banco="inter">Visualizar</button>
           </div>
-          <div class="cartao MP">
+          <div class="cartao MP" data-banco="mp"> <button class="remover-cartao" aria-label="Remover cartão">✕</button>
             <p>Mercado pago</p>
             <strong
               >Fatura: R$
@@ -205,8 +208,21 @@
             >
             <button class="analise-fat" data-banco="dp">Visualizar</button>
           </div>
+
+          <div class="cartao novo-cartao">
+            <input id="cartaoNome" placeholder="Digite novo cartão" />
+            
+          <div class="color-picker">
+            <input id="cartaoCor" type="color" value="#8A05BE">
+            <span class="preview"></span>
+          </div>
+            <button class="add" onclick="adicionarCartao()">
+              Adicionar cartão
+            </button>
+          </div>
         </div>
-      </section>
+    </section>
+
 
       <!-- GASTOS -->
       <section class="card">
@@ -237,10 +253,8 @@
           <option value="dp">Dinheiro / Pix</option>
         </select>
 
-        <select id="tipo">
-          <option value="credito">Crédito</option>
-          <option value="parcelado">Parcelado</option>
-        </select>
+
+
 
         <select id="mesFatura">
           <option value="0">Janeiro</option>

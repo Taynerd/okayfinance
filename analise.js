@@ -52,16 +52,17 @@ function render() {
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${g.nome}</td>
-            <td>${g.categoria}</td>
-            <td>${g.parcelas > 1 ? `${i + 1}/${g.parcelas}` : "-"}</td>
-            <td>R$ ${valorParcela.toFixed(2)}</td>
-            <td>
-              <button class="remover" onclick="removerGasto('${
-                g.id
-              }')">✕</button>
-            </td>
-          `;
+  <td class="col-remover">
+    <button class="remover" onclick="removerGasto('${g.id}')">✕</button>
+  </td>
+  <td class="col-nome">${g.nome}</td>
+  <td class="col-valor">R$ ${valorParcela.toFixed(2)}</td>
+  <td class="col-parcela">
+    ${g.parcelas > 1 ? `${i + 1}/${g.parcelas}` : "-"}
+  </td>
+  <td class="col-categoria">${g.categoria}</td>
+`;
+
           lista.appendChild(tr);
         }
       }
