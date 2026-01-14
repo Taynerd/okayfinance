@@ -532,36 +532,3 @@ input::placeholder {
 
 
 
-@media (max-width: 768px) {
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  tbody tr {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  tbody tr::-webkit-scrollbar {
-    display: none; /* remove barra */
-  }
-
-  tbody tr td {
-    display: inline-block;
-    padding: 12px 10px;
-    vertical-align: middle;
-  }
-
-  
-  .col-remover {
-    position: sticky;
-    left: 0;
-    background: var(--bg-card, #020617);
-    z-index: 3;
-  }
-}

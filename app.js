@@ -534,3 +534,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.dispatchEvent(new Event("dadosAtualizados"));
 });
+
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "gastos") {
+    // re-sincroniza estado
+    gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+
+    renderizarCardsFatura();
+    atualizarLimites();
+    atualizarDashboard();
+
+    document.dispatchEvent(new Event("dadosAtualizados"));
+  }
+});

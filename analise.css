@@ -166,3 +166,28 @@ body {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+@media (max-width: 768px) {
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  table {
+    min-width: 600px; /* 🔑 FORÇA overflow */
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
+  /* botão remover sempre visível */
+  .col-remover {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+  }
+}

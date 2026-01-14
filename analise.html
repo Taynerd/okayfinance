@@ -21,24 +21,26 @@
   </div>
 
   <section class="card">
-    <table class="tabela-fatura">
-<thead>
-  <tr>
-    <th class="th-remover"></th>
-    <th>Nome</th>
-    <th>Valor</th>
-    <th>Parcela</th>
-    <th>Categoria</th>
-  </tr>
-</thead>
-      <tbody id="listaGastos"></tbody>
-      <tfoot>
+    <div class="table-scroll">
+      <table class="tabela-fatura">
+      <thead>
         <tr>
-          <td colspan="3">Total da fatura</td>
-          <td id="totalFatura">R$ 0,00</td>
+      <th class="th-remover"></th>
+      <th>Nome</th>
+      <th>Valor</th>
+      <th>Parcela</th>
+      <th>Categoria</th>
         </tr>
-      </tfoot>
-    </table>
+      </thead>
+        <tbody id="listaGastos"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">Total da fatura</td>
+            <td id="totalFatura">R$ 0,00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
     
     <button class="limpar-fatura" onclick="limparFaturaMes()">
   Limpar fatura 
