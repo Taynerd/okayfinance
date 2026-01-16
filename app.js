@@ -202,7 +202,7 @@ const btnLogout = document.getElementById("btnLogout");
 if (btnLogout) {
   btnLogout.onclick = () => {
     logout().then(() => {
-      window.location.href = "/login.html";
+      window.location.href = "login.html";
     });
   };
 }
