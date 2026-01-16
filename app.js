@@ -29,21 +29,22 @@ observarLogin(async (user) => {
 
   cartoes = dados.cartoes?.length
     ? dados.cartoes
-    : [
-        {
-          id: "dp",
-          nome: "Dinheiro / Pix",
-          slug: "dp",
-          cor: "#4CAF50",
-        },
-      ];
+    : [{
+        id: "dp",
+        nome: "Dinheiro / Pix",
+        slug: "dp",
+        cor: "#4CAF50",
+      }];
 
   criarAppState();
 
-  // 🔔 avisa TODAS as páginas
+  // 🔥 AQUI ESTÁ O PULO DO GATO
+  document.dispatchEvent(new Event("dadosAtualizados"));
   dispararAtualizacao();
   sincronizarCardsComEstado();
 });
+  
+
 
 /********************************
  * APP STATE GLOBAL (ÚNICO)
