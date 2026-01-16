@@ -101,10 +101,4 @@ function renderGraficoSaldo(totalEntradas, saldo) {
 /*********************
  * EVENTOS
  *********************/
-document.addEventListener("dadosAtualizados", () => {
-  calcularDashboard();
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  calcularDashboard();
-});
+document.addEventListener("dadosAtualizados", calcularDashboard);

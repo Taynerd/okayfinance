@@ -721,30 +721,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".remover-cartao");
-  if (!btn) return;
+  // remover cartão
+  const btnCartao = e.target.closest(".remover-cartao");
+  if (btnCartao) {
+    const cartao = btnCartao.closest(".cartao");
+    const slug = cartao?.dataset.banco;
+    if (slug) removerCartao(slug);
+    return;
+  }
 
-  const cartao = btn.closest(".cartao");
-  const slug = cartao.dataset.banco;
-
-  removerCartao(slug);
+  // remover limite
+  const btnLimite = e.target.closest(".remover-limite");
+  if (btnLimite) {
+    const categoria = btnLimite.dataset.categoria;
+    if (categoria) removerLimite(categoria);
+    return;
+  }
 });
 
-document.addEventListener("click", (e) => {
-  const btnRL = e.target.closest(".remover-limite");
-  if (!btnRL) return;
-
-  const categoria = btnRL.dataset.categoria;
-  if (!categoria) return;
-
-  removerLimite(categoria);
-
-});
 document.addEventListener("dadosAtualizados", () => {
-  renderizarLimites();
-   renderizarCardsFatura();
-   atualizarDashboard();  
-   renderizarSelectBanco();
-});
+  // dashboard
+  atualizarDashboard();
 
-  
+  // UI dependente de dados
+  renderizarCardsFatura();
+  renderizarLimites();
+  renderizarSelectBanco();
+});
