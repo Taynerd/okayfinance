@@ -59,7 +59,15 @@ body {
   margin: 0;
   z-index: 210; /* garante que o X fique visível */
 }
-
+.btnLogout{
+  display: flex;
+  background-color: transparent;
+  color: var(--text-invert);
+  border: none;
+  position:relative ;
+  left: 150px;
+  padding-right: 10px;
+}
 .menu-btn span {
   height: 2px;
   background: white;

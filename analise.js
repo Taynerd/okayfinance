@@ -10,36 +10,31 @@ const totalEl = document.getElementById("totalFatura");
 
 titulo.innerText = `Fatura ${bancoSelecionado}`;
 
+/*********************
+ * UTIL
+ *********************/
 function nomeMes(m) {
   return [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
+    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
   ][m];
 }
 
+/*********************
+ * RENDER PRINCIPAL
+ *********************/
 function render() {
   lista.innerHTML = "";
   let total = 0;
 
-  mesLabel.innerText = `${nomeMes(
-    dataAtual.getMonth()
-  )} ${dataAtual.getFullYear()}`;
+  mesLabel.innerText =
+    `${nomeMes(dataAtual.getMonth())} ${dataAtual.getFullYear()}`;
 
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+  const gastos = window.appState?.gastos || [];
 
   gastos
-    .filter((g) => g.banco === bancoSelecionado)
-    .forEach((g) => {
+    .filter(g => g.banco === bancoSelecionado)
+    .forEach(g => {
       for (let i = 0; i < g.parcelas; i++) {
         const mesGasto = new Date(g.anoInicio, g.mesInicio + i);
 
@@ -52,17 +47,18 @@ function render() {
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-  <td class="col-remover">
-    <button class="remover" onclick="removerGasto('${g.id}')">✕</button>
-  </td>
-  <td class="col-nome">${g.nome}</td>
-  <td class="col-valor">R$ ${valorParcela.toFixed(2)}</td>
-  <td class="col-parcela">
-    ${g.parcelas > 1 ? `${i + 1}/${g.parcelas}` : "-"}
-  </td>
-  <td class="col-categoria">${g.categoria}</td>
-`;
+            <td class="col-remover">
+              <button class="remover" data-id="${g.id}">✕</button>
+            </td>
+            <td class="col-nome">${g.nome}</td>
+            <td class="col-valor">R$ ${valorParcela.toFixed(2)}</td>
+            <td class="col-parcela">
+              ${g.parcelas > 1 ? `${i + 1}/${g.parcelas}` : "-"}
+            </td>
+            <td class="col-categoria">${g.categoria}</td>
+          `;
 
+          tr.querySelector(".remover").onclick = () => removerGasto(g.id);
           lista.appendChild(tr);
         }
       }
@@ -71,30 +67,26 @@ function render() {
   totalEl.innerText = `R$ ${total.toFixed(2)}`;
 }
 
+/*********************
+ * REMOVER GASTO
+ *********************/
 function removerGasto(id) {
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
-  const filtrados = gastos.filter((g) => g.id !== id);
-
-  localStorage.setItem("gastos", JSON.stringify(filtrados));
+  const novos = window.appState.gastos.filter(g => g.id !== id);
+  window.appState.setGastos(novos);
 
   render();
-  atualizarDashboard();
-  renderizarCardsFatura();
-  atualizarLimites();
 }
 
+/*********************
+ * LIMPAR FATURA DO MÊS
+ *********************/
 function limparFaturaMes() {
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
   const mes = dataAtual.getMonth();
   const ano = dataAtual.getFullYear();
 
-  const filtrados = gastos.filter((g) => {
-    // mantém gastos de outros bancos
+  const filtrados = window.appState.gastos.filter(g => {
     if (g.banco !== bancoSelecionado) return true;
 
-    // remove qualquer gasto que tenha parcela neste mês/ano
     for (let i = 0; i < g.parcelas; i++) {
       const d = new Date(g.anoInicio, g.mesInicio + i);
       if (d.getMonth() === mes && d.getFullYear() === ano) {
@@ -104,14 +96,15 @@ function limparFaturaMes() {
     return true;
   });
 
-  localStorage.setItem("gastos", JSON.stringify(filtrados));
+  window.appState.setGastos(filtrados);
 
   showToast("Fatura limpa com sucesso ✔");
-
   render();
-  atualizarDashboard();
 }
 
+/*********************
+ * CONTROLE DE MÊS
+ *********************/
 document.getElementById("prevMes").onclick = () => {
   dataAtual.setMonth(dataAtual.getMonth() - 1);
   render();
@@ -122,6 +115,9 @@ document.getElementById("nextMes").onclick = () => {
   render();
 };
 
+/*********************
+ * TOAST
+ *********************/
 function showToast(message, type = "success", duration = 1800) {
   let toast = document.getElementById("toast");
 
@@ -138,28 +134,9 @@ function showToast(message, type = "success", duration = 1800) {
   setTimeout(() => toast.classList.remove("active"), duration);
 }
 
-function garantirIds() {
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-  let alterado = false;
-
-  gastos.forEach((g) => {
-    if (!g.id) {
-      g.id = crypto.randomUUID();
-      alterado = true;
-    }
-  });
-
-  if (alterado) {
-    localStorage.setItem("gastos", JSON.stringify(gastos));
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  garantirIds();
-  render();
-});
-
-//analise da fatura por categoria
+/*********************
+ * RELATÓRIO POR CATEGORIA
+ *********************/
 function abrirRelatorio() {
   document.getElementById("relatorioCategoria").classList.add("active");
   renderGraficoCategorias();
@@ -168,67 +145,57 @@ function abrirRelatorio() {
 function fecharRelatorio() {
   document.getElementById("relatorioCategoria").classList.remove("active");
 }
+
 function renderGraficoCategorias() {
   const container = document.getElementById("graficoCategorias");
   container.innerHTML = "";
 
-  const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+  const gastos = window.appState.gastos;
   const mes = dataAtual.getMonth();
   const ano = dataAtual.getFullYear();
 
   const porCategoria = {};
 
   gastos
-    .filter((g) => g.banco === bancoSelecionado)
-    .forEach((g) => {
+    .filter(g => g.banco === bancoSelecionado)
+    .forEach(g => {
       for (let i = 0; i < g.parcelas; i++) {
         const d = new Date(g.anoInicio, g.mesInicio + i);
         if (d.getMonth() === mes && d.getFullYear() === ano) {
           const valor = g.valor / g.parcelas;
-          porCategoria[g.categoria] = (porCategoria[g.categoria] || 0) + valor;
+          porCategoria[g.categoria] =
+            (porCategoria[g.categoria] || 0) + valor;
         }
       }
     });
 
   const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
 
-  const coresCategorias = {
-    Alimentação: "#ef4444", // vermelho
-    Lazer: "#f59e0b", // laranja
-    Transporte: "#3b82f6", // azul
-    Farmácia: "#22c55e", // verde
-    Imprevisto: "#a855f7", // roxo
-    mercado: "#14b8a6", // teal
-    Casa: "#64748b", // cinza
-    "Pessoal 1": "#ec4899", // rosa
-    "Pessoal 2": "#8b5cf6", // violeta
-  };
-
-  function corCategoria(nome) {
-    return coresCategorias[nome] || "#6366f1"; // fallback padrão
-  }
-
   Object.entries(porCategoria).forEach(([categoria, valor]) => {
     const perc = total > 0 ? (valor / total) * 100 : 0;
-    const cor = corCategoria(categoria);
 
     const div = document.createElement("div");
     div.className = "barra";
     div.innerHTML = `
-    <span>${categoria}</span>
-    <div class="progresso">
-      <div class="fill"></div>
-    </div>
-    <strong>${perc.toFixed(0)}%</strong>
-  `;
-
-    const fill = div.querySelector(".fill");
-    fill.style.background = cor;
+      <span>${categoria}</span>
+      <div class="progresso">
+        <div class="fill" style="width:${perc}%"></div>
+      </div>
+      <strong>${perc.toFixed(0)}%</strong>
+    `;
 
     container.appendChild(div);
-
-    requestAnimationFrame(() => {
-      fill.style.width = `${perc}%`;
-    });
   });
 }
+
+/*********************
+ * EVENTOS GLOBAIS
+ *********************/
+document.addEventListener("dadosAtualizados", () => {
+  render();
+});
+
+/*********************
+ * INIT
+ *********************/
+document.addEventListener("DOMContentLoaded", render);

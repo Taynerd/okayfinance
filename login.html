@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entrar · My Finance</title>
+
+  <link rel="stylesheet" href="login.css" />
+  <meta name="theme-color" content="#131621" />
+</head>
+
+<body>
+  <main class="login-container">
+
+    <section class="login-card">
+      <div class="logo">
+        <!-- aqui depois você pode colocar o ícone -->
+        <span>TERA</span>
+      </div>
+
+      <h1>Controle sua vida financeira</h1>
+      <p class="subtitle">
+        Acompanhe gastos, cartões e metas em um só lugar.
+      </p>
+
+      <!-- LOGIN GOOGLE -->
+      <button id="btnGoogle" class="btn google">
+        <span class="icon">G</span>
+        Entrar com Google
+      </button>
+
+      <div class="divider">
+        <span>ou</span>
+      </div>
+
+      <!-- LOGIN FUTURO (EMAIL/SENHA) -->
+      <form class="login-form">
+        <input type="email" placeholder="E-mail" disabled />
+        <input type="password" placeholder="Senha" disabled />
+
+        <button class="btn primary" disabled>
+          Entrar
+        </button>
+      </form>
+
+      <p class="hint">
+        Login por e-mail será habilitado em breve
+      </p>
+
+      <footer>
+        <small>
+          © 2026 · My Finance
+        </small>
+      </footer>
+    </section>
+
+  </main>
+
+  <!-- aqui você conecta o JS depois -->
+   <script type="module" src="login.js"></script>
+
+  <!-- <script type="module" src="auth.js"></script> -->
+
+
+</body>
+</html>

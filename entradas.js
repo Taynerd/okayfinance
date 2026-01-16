@@ -36,35 +36,18 @@ function showToast(message, type = "success", duration = 1500) {
 }
 
 /*********************
- * GARANTIR IDS (MIGRA DADOS ANTIGOS)
- *********************/
-function garantirIds() {
-  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
-  let alterado = false;
-
-  entradas.forEach(e => {
-    if (!e.id) {
-      e.id = crypto.randomUUID();
-      alterado = true;
-    }
-  });
-
-  if (alterado) {
-    localStorage.setItem("entradas", JSON.stringify(entradas));
-  }
-}
-
-/*********************
  * RENDER
  *********************/
 function render() {
+  if (!window.appState) return;
+
   lista.innerHTML = "";
   let total = 0;
 
   mesLabel.innerText =
     `${nomeMes(dataAtual.getMonth())} ${dataAtual.getFullYear()}`;
 
-  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+  const entradas = window.appState.entradas || [];
 
   entradas
     .filter(e =>
@@ -94,12 +77,15 @@ function render() {
  * REMOVER ENTRADA
  *********************/
 function removerEntrada(id) {
-  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
-  const filtradas = entradas.filter(e => e.id !== id);
+  if (!window.appState) return;
 
-  localStorage.setItem("entradas", JSON.stringify(filtradas));
+  const entradas = window.appState.entradas || [];
+  const novas = entradas.filter(e => e.id !== id);
 
-  render();
+  // 🔥 atualiza estado central + Firebase
+  window.appState.setEntradas(novas);
+
+  showToast("Entrada removida ✔");
 }
 
 /*********************
@@ -115,10 +101,8 @@ document.getElementById("nextMes").onclick = () => {
   render();
 };
 
+
 /*********************
- * INIT
+ * REAGIR A ATUALIZAÇÕES GLOBAIS
  *********************/
-document.addEventListener("DOMContentLoaded", () => {
-  garantirIds();
-  render();
-});
+document.addEventListener("dadosAtualizados", render);

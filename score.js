@@ -10,10 +10,27 @@ function getMesAnoAtual() {
 }
 
 /*********************
+ * HELPERS DE ESTADO (SEGUROS)
+ *********************/
+function getEntradas() {
+  return window.appState?.entradas || [];
+}
+
+function getGastos() {
+  return window.appState?.gastos || [];
+}
+
+function getLimites() {
+  return window.appState?.limites || [];
+}
+
+/*********************
  * TOTAIS
  *********************/
 function totalEntradasMes() {
   const { mes, ano } = getMesAnoAtual();
+  const entradas = getEntradas();
+
   return entradas
     .filter(e => e.mes === mes && e.ano === ano)
     .reduce((s, e) => s + e.valor, 0);
@@ -21,6 +38,7 @@ function totalEntradasMes() {
 
 function totalGastosMes() {
   const { mes, ano } = getMesAnoAtual();
+  const gastos = getGastos();
 
   return gastos.reduce((total, g) => {
     for (let i = 0; i < g.parcelas; i++) {
@@ -37,7 +55,8 @@ function totalGastosMes() {
  * MÉTRICAS
  *********************/
 function categoriasComLimiteEstourado() {
-  if (!limites.length) return 0;
+  const limites = getLimites();
+  if (!limites.length || typeof totalPorCategoria !== "function") return 0;
 
   return limites.filter(l => {
     const gasto = totalPorCategoria(l.categoria);
@@ -49,18 +68,19 @@ function percentualRendaComprometida() {
   const entradasMes = totalEntradasMes();
   const gastosMes = totalGastosMes();
 
-  if (entradasMes === 0 && gastosMes === 0) return null; // estado inicial
-  if (entradasMes === 0 && gastosMes > 0) return 100;   // gastando sem renda
+  if (entradasMes === 0 && gastosMes === 0) return null;
+  if (entradasMes === 0 && gastosMes > 0) return 100;
 
   return (gastosMes / entradasMes) * 100;
 }
 
 function percentualParcelamentos() {
+  const gastos = getGastos();
   const total = totalGastosMes();
   if (total === 0) return 0;
 
   const parcelado = gastos
-    .filter(g => g.tipo === "parcelado")
+    .filter(g => g.parcelas > 1)
     .reduce((s, g) => s + g.valor / g.parcelas, 0);
 
   return (parcelado / total) * 100;
@@ -98,8 +118,8 @@ function calcularScoreFinanceiro() {
     insights.push("Atenção: gastos acima de 60% da renda.");
   }
 
-  // 🔴 LIMITES DE CATEGORIA
-  if (limites.length > 0 && limitesEstourados > 0) {
+  // 🔴 LIMITES
+  if (limitesEstourados > 0) {
     score -= limitesEstourados * 10;
     insights.push(`${limitesEstourados} categoria(s) ultrapassaram o limite.`);
   }
@@ -136,15 +156,11 @@ function renderizarScore() {
 
   const { score, estado, insights } = calcularScoreFinanceiro();
 
-  // número
   valorEl.innerText = score;
-
-  // reset visual
   card.classList.remove("good", "medium", "bad");
 
   const totalArco = 283;
 
-  // estado inicial
   if (estado === "inicial") {
     gauge.style.strokeDashoffset = totalArco;
     card.classList.add("medium");
@@ -165,7 +181,6 @@ function renderizarScore() {
     }
   }
 
-  // insights
   insightsEl.innerHTML = "";
   insights.forEach(texto => {
     const li = document.createElement("li");
@@ -175,8 +190,7 @@ function renderizarScore() {
 }
 
 /*********************
- * EVENTO GLOBAL
+ * EVENTOS GLOBAIS
  *********************/
-document.addEventListener("dadosAtualizados", () => {
-  renderizarScore();
-});
+document.addEventListener("dadosAtualizados", renderizarScore);
+document.addEventListener("DOMContentLoaded", renderizarScore);

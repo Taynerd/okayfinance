@@ -1,7 +1,11 @@
+/*********************
+ * ESTADO LOCAL
+ *********************/
 let dataAtual = new Date();
 
-const lista = document.getElementById("listaEntradas"); // mantém o mesmo HTML
-const totalEl = document.getElementById("totalEntradas");
+/* mantém o HTML como está */
+const lista    = document.getElementById("listaEntradas");
+const totalEl  = document.getElementById("totalEntradas");
 const mesLabel = document.getElementById("mesAtual");
 
 /*********************
@@ -30,41 +34,22 @@ function showToast(message, type = "success", duration = 1500) {
   toast.className = `toast active ${type}`;
   toast.innerHTML = `<div class="toast-message">${message}</div>`;
 
-  setTimeout(() => {
-    toast.classList.remove("active");
-  }, duration);
-}
-
-/*********************
- * GARANTIR IDS (MIGRA DADOS ANTIGOS)
- *********************/
-function garantirIds() {
-  const gastosFixos = JSON.parse(localStorage.getItem("gastosFixos")) || [];
-  let alterado = false;
-
-  gastosFixos.forEach(g => {
-    if (!g.id) {
-      g.id = crypto.randomUUID();
-      alterado = true;
-    }
-  });
-
-  if (alterado) {
-    localStorage.setItem("gastosFixos", JSON.stringify(gastosFixos));
-  }
+  setTimeout(() => toast.classList.remove("active"), duration);
 }
 
 /*********************
  * RENDER
  *********************/
 function render() {
+  if (!window.appState) return;
+
   lista.innerHTML = "";
   let total = 0;
 
   mesLabel.innerText =
     `${nomeMes(dataAtual.getMonth())} ${dataAtual.getFullYear()}`;
 
-  const gastosFixos = JSON.parse(localStorage.getItem("gastosFixos")) || [];
+  const gastosFixos = window.appState.gastosFixos || [];
 
   gastosFixos
     .filter(g =>
@@ -94,14 +79,19 @@ function render() {
  * REMOVER GASTO FIXO
  *********************/
 function removerGFixo(id) {
-  const gastosFixos = JSON.parse(localStorage.getItem("gastosFixos")) || [];
-  const filtrados = gastosFixos.filter(g => g.id !== id);
+  if (!window.appState) return;
 
-  localStorage.setItem("gastosFixos", JSON.stringify(filtrados));
+  const gastosFixos = window.appState.gastosFixos || [];
+  const novos = gastosFixos.filter(g => g.id !== id);
+
+  // 🔥 atualiza estado central + Firebase
+  window.appState.setGastosFixos(novos);
 
   render();
+  document.dispatchEvent(new Event("dadosAtualizados"));
+
+  showToast("Gasto fixo removido ✔");
 }
-document.dispatchEvent(new Event("dadosAtualizados"));
 
 /*********************
  * CONTROLE DE MÊS
@@ -119,10 +109,9 @@ document.getElementById("nextMes").onclick = () => {
 /*********************
  * INIT
  *********************/
-document.addEventListener("DOMContentLoaded", () => {
-  garantirIds();
-  render();
-  atualizarDashboard();
-  document.dispatchEvent(new Event("dadosAtualizados"));
+document.addEventListener("DOMContentLoaded", render);
 
-});
+/*********************
+ * REAGIR A ATUALIZAÇÕES GLOBAIS
+ *********************/
+document.addEventListener("dadosAtualizados", render);

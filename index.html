@@ -17,7 +17,8 @@
         <span></span>
         <span></span>
       </button>
-      <h1 class="app-name">MY FINANCE</h1>
+      <h1 class="app-name">MY FINANCE</h1>  
+      <button id="btnLogout" class="btnLogout">Sair</button>
     </header>
 
     <nav id="menu" class="menu-overlay">
@@ -85,25 +86,21 @@
 
   <input id="entradaDescricao" placeholder="Descrição" />
   <input id="entradaValor" type="number" placeholder="Valor" />
-  <button class="add" onclick="adicionarEntrada()">Adicionar</button>
-
+<button class="add" id="btnAdicionarEntrada">Adicionar entrada</button>
   <p id="msgEntrada" class="msg"></p>
 
-  <button class="ver-ganhos add" onclick="irParaEntradas()">
-    Meus ganhos
-  </button>
+<button class="ver-ganhos add">Meus ganhos</button>
 
   <h2>Gastos Fixos</h2>
 
   <input id="fixoDescricao" placeholder="Descrição" />
   <input id="fixoValor" type="number" placeholder="Valor" />
-  <button class="add" onclick="adicionarGFixo()">Adicionar</button>
+<button class="add" id="btnAdicionarGFixo">Adicionar</button>
 
   <p id="msgEntrada" class="msg"></p>
 
-  <button class="ver-gasto add" onclick="irParaGastosFixos()">
-    Meus gastos
-  </button>
+<button class="add" id="btnGastosFixos"> Gastos fixos</button>
+
 
  <!-- score -->
 <section class="card score-card">
@@ -220,7 +217,7 @@
             <input id="cartaoCor" type="color" value="#8A05BE">
             <span class="preview"></span>
           </div>
-            <button class="add" onclick="adicionarCartao()">
+          <button class="add" id="btnAdicionarCartao">Criar cartão</button>
               Adicionar cartão
             </button>
           </div>
@@ -275,13 +272,9 @@
           <option value="11">Dezembro</option>
         </select>
 
-        <input
-          id="parcelas"
-          type="number"
-          placeholder="Qtd parcelas (se houver)"
-        />
-        <button class="add" onclick="adicionarGasto()">Adicionar gasto</button>
-</section>
+        <input id="parcelas"type="number"placeholder="Qtd parcelas (se houver)" />
+        <button class="add" id="btnAdicionarGasto">Adicionar</button>
+      </section>
 
 <section class="card">
   <h2>Controle de Limites</h2>
@@ -301,7 +294,7 @@
   <input id="limite" type="number" placeholder="Limite da categoria" />
   <p id="msgEntrada" class="msg"></p>
 
-  <button class="add" onclick="criarLimite()">Criar alerta</button>
+<button class="add" id="btnSalvarLimite">Salvar limite</button>
 </section>
 
 <section class="card">
@@ -310,10 +303,24 @@
 </section>
 
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
     <script src="dashboard.js"></script>
     <script src="score.js"></script>
     <div id="toast" class="toast"></div>
+
+    <script type="module">
+  import { auth } from "./firebase.js";
+  import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // ❌ NÃO LOGADO → VOLTA PARA LOGIN
+      window.location.href = "/login.html";
+    }
+  });
+</script>
+
     
   </body>
 </html>

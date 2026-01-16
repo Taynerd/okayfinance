@@ -1,93 +1,250 @@
-/*********************
- * MENU
- *********************/
-const menuBtn = document.getElementById("menuBtn");
-const menu = document.getElementById("menu");
-const menuPanel = document.querySelector(".menu-panel");
+import { observarLogin, logout } from "./auth.js";
+import { carregarDados, salvarDados } from "./db.js";
 
-let limites = JSON.parse(localStorage.getItem("limites")) || [];
-let gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+/********************************
+ * ESTADO CENTRAL
+ ********************************/
+let usuarioAtual = null;
 
-menuBtn.addEventListener("click", () => {
-  const aberto = menu.classList.toggle("active");
-  menuBtn.classList.toggle("active", aberto);
+let gastos = [];
+let gastosFixos = [];
+let entradas = [];
+let cartoes = [];
+let limites = [];
+
+/********************************
+ * LOGIN + BOOTSTRAP
+ ********************************/
+observarLogin(async (user) => {
+  if (!user) return;
+
+  usuarioAtual = user;
+
+  const dados = await carregarDados(user.uid);
+
+  gastos = dados.gastos || [];
+  gastosFixos = dados.gastosFixos || [];
+  entradas = dados.entradas || [];
+  limites = dados.limites || [];
+
+  cartoes = dados.cartoes?.length
+    ? dados.cartoes
+    : [
+        {
+          id: "dp",
+          nome: "Dinheiro / Pix",
+          slug: "dp",
+          cor: "#4CAF50",
+        },
+      ];
+
+  criarAppState();
+
+  // 🔔 avisa TODAS as páginas
+  dispararAtualizacao();
 });
 
-// clique fora fecha
-menu.addEventListener("click", (e) => {
-  if (!menuPanel.contains(e.target)) {
-    fecharMenu();
-  }
-});
+/********************************
+ * APP STATE GLOBAL (ÚNICO)
+ ********************************/
+function criarAppState() {
+  window.appState = {
+    /* ======================
+     * GETTERS (leitura)
+     * ====================== */
+    get gastos() {
+      return gastos;
+    },
 
-function fecharMenu() {
-  menu.classList.remove("active");
-  menuBtn.classList.remove("active");
+    get gastosFixos() {
+      return gastosFixos;
+    },
+
+    get entradas() {
+      return entradas;
+    },
+
+    get cartoes() {
+      return cartoes;
+    },
+
+    get limites() {
+      return limites;
+    },
+
+    /* ======================
+     * SETTERS (imutáveis)
+     * ====================== */
+    setGastos(novos) {
+      gastos = novos;
+      persistirEstado();
+      dispararAtualizacao();
+    },
+
+    setGastosFixos(novos) {
+      gastosFixos = novos;
+      persistirEstado();
+      dispararAtualizacao();
+    },
+
+    setEntradas(novas) {
+      entradas = novas;
+      persistirEstado();
+      dispararAtualizacao();
+    },
+
+    setCartoes(novos) {
+      cartoes = novos;
+      persistirEstado();
+      dispararAtualizacao();
+    },
+
+    setLimites(novos) {
+      limites = novos;
+      persistirEstado();
+      dispararAtualizacao();
+    },
+  };
 }
 
-/*********************
- * ENTRADAS
- *********************/
-let entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+/********************************
+ * FIRESTORE
+ ********************************/
+async function persistirEstado() {
+  if (!usuarioAtual) return;
 
-function adicionarEntrada() {
+  await salvarDados(usuarioAtual.uid, {
+    gastos,
+    gastosFixos,
+    entradas,
+    cartoes,
+    limites,
+  });
+}
+
+/********************************
+ * EVENTO GLOBAL
+ ********************************/
+function dispararAtualizacao() {
+  document.dispatchEvent(new Event("dadosAtualizados"));
+}
+
+/********************************
+ * ENTRADAS (GANHOS)
+ ********************************/
+async function adicionarEntrada() {
+  if (!window.appState) return;
+
   const desc = document.getElementById("entradaDescricao");
   const valor = document.getElementById("entradaValor");
 
-  if (!desc.value || !valor.value || Number(valor.value) <= 0) {
+  if (!desc || !valor || !desc.value || Number(valor.value) <= 0) {
     showToast("Preencha descrição e valor válido.", "error");
     return;
   }
 
-  entradas.push({
-    id: crypto.randomUUID(), // 🔑 ESSENCIAL
+  const novaEntrada = {
+    id: crypto.randomUUID(),
     descricao: desc.value,
     valor: Number(valor.value),
     mes: new Date().getMonth(),
     ano: new Date().getFullYear(),
-  });
+  };
 
-  localStorage.setItem("entradas", JSON.stringify(entradas));
+  window.appState.setEntradas([...window.appState.entradas, novaEntrada]);
 
   desc.value = "";
   valor.value = "";
 
   showToast("Entrada adicionada com sucesso ✔");
-  atualizarDashboard();
-  document.dispatchEvent(new Event("dadosAtualizados"));
 }
+
+/********************************
+ * MENU
+ ********************************/
+const menuBtn = document.getElementById("menuBtn");
+const menu = document.getElementById("menu");
+const menuPanel = document.querySelector(".menu-panel");
+
+if (menuBtn && menu && menuPanel) {
+  menuBtn.addEventListener("click", () => {
+    const aberto = menu.classList.toggle("active");
+    menuBtn.classList.toggle("active", aberto);
+  });
+
+  menu.addEventListener("click", (e) => {
+    if (!menuPanel.contains(e.target)) {
+      menu.classList.remove("active");
+      menuBtn.classList.remove("active");
+    }
+  });
+}
+
+/********************************
+ * TOAST
+ ********************************/
+function showToast(message, type = "success", duration = 1200) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.className = `toast active ${type}`;
+  toast.innerHTML = `<div class="toast-message">${message}</div>`;
+
+  setTimeout(() => {
+    toast.classList.remove("active");
+  }, duration);
+}
+
+/********************************
+ * LOGOUT
+ ********************************/
+const btnLogout = document.getElementById("btnLogout");
+if (btnLogout) {
+  btnLogout.onclick = () => {
+    logout().then(() => {
+      window.location.href = "/login.html";
+    });
+  };
+}
+
+/********************************
+ * INIT (EVENTOS DE UI)
+ ********************************/
 
 /*********************
  * gastos fixos
  *********************/
-let gastosFixos = JSON.parse(localStorage.getItem("gastosFixos")) || [];
-
 function adicionarGFixo() {
+  if (!window.appState) return;
+
   const desc = document.getElementById("fixoDescricao");
   const valor = document.getElementById("fixoValor");
 
-  if (!desc.value || !valor.value || Number(valor.value) <= 0) {
+  if (!desc.value || Number(valor.value) <= 0) {
     showToast("Preencha descrição e valor válido.", "error");
     return;
   }
 
-  gastosFixos.push({
-    id: crypto.randomUUID(), // 🔑 essencial
+  const novoGFixo = {
+    id: crypto.randomUUID(),
     descricao: desc.value,
     valor: Number(valor.value),
     mes: new Date().getMonth(),
     ano: new Date().getFullYear(),
-  });
+  };
 
-  localStorage.setItem("gastosFixos", JSON.stringify(gastosFixos));
+  // ✅ cria novo array (imutável)
+  const novos = [...window.appState.gastosFixos, novoGFixo];
+
+  // ✅ nome correto + tipo correto
+  window.appState.setGastosFixos(novos);
 
   desc.value = "";
   valor.value = "";
 
   showToast("Gasto fixo adicionado com sucesso ✔");
-  atualizarDashboard();
-  document.dispatchEvent(new Event("dadosAtualizados"));
 }
+
 function irParaGastosFixos() {
   window.location.href = "fixos.html";
 }
@@ -96,7 +253,7 @@ function irParaGastosFixos() {
  * gastos
  *********************/
 function adicionarGasto() {
-  // 🔹 Criação do gasto
+  if (!window.appState) return;
 
   const nomeEl = document.getElementById("nome");
   const valorEl = document.getElementById("valor");
@@ -105,49 +262,55 @@ function adicionarGasto() {
   const parcelasEl = document.getElementById("parcelas");
   const mesFaturaEl = document.getElementById("mesFatura");
 
-  // 🔹 Normalização
   const nome = nomeEl.value.trim();
   const valor = Number(valorEl.value);
   const parcelas = Number(parcelasEl.value) || 1;
+  const banco = bancoEl.value;
+  const categoria = categoriaEl.value.trim().toLowerCase();
+  const mesInicio = Number(mesFaturaEl.value);
 
-  // 🔹 Validações
-  if (!nome || valor <= 0) {
-    showToast("Preencha corretamente o nome e o valor.", "error");
+  if (!nome || valor <= 0 || isNaN(mesInicio)) {
+    showToast("Preencha corretamente os campos.", "error");
     return;
   }
 
-  gastos.push({
-    id: crypto.randomUUID(), // 🔑 ESSENCIAL
+  const novoGasto = {
+    id: crypto.randomUUID(),
     nome,
     valor,
-    categoria: categoriaEl.value.trim().toLowerCase(),
-    banco: bancoEl.value,
+    categoria,
+    banco,
     parcelas,
-    mesInicio: Number(mesFaturaEl.value),
+    mesInicio,
     anoInicio: new Date().getFullYear(),
-  });
-  // 🔹 Persistência
-  localStorage.setItem("gastos", JSON.stringify(gastos));
+  };
 
-  // 🔹 Limpeza dos inputs
+  // 🔥 IMUTABILIDADE + FIRESTORE
+  const novosGastos = [...window.appState.gastos, novoGasto];
+  window.appState.setGastos(novosGastos);
+
+  // 🧹 limpar inputs
   nomeEl.value = "";
   valorEl.value = "";
   parcelasEl.value = "";
 
-  // 🔹 Feedback ao usuário
   showToast("Gasto adicionado com sucesso ✔");
-  renderizarCardsFatura();
-  atualizarLimites();
-  atualizarDashboard();
-  document.dispatchEvent(new Event("dadosAtualizados"));
 }
+
 //atualiza card da fatura
 function renderizarCardsFatura() {
+  if (!window.appState) return;
+
+  const gastos = window.appState.gastos || [];
+
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  document.querySelectorAll(".fatura").forEach((el) => {
+  const cards = document.querySelectorAll(".fatura");
+  if (!cards.length) return;
+
+  cards.forEach((el) => {
     const bancoCard = el.dataset.banco;
     let total = 0;
 
@@ -181,52 +344,91 @@ document.addEventListener("click", (e) => {
   window.location.href = `analise.html?banco=${encodeURIComponent(banco)}`;
 });
 
-/*********************
- * validação de entrada
- *********************/
-function showToast(message, type = "success", duration = 1000) {
-  const toast = document.getElementById("toast");
-
-  toast.className = `toast active ${type}`;
-  toast.innerHTML = `<div class="toast-message">${message}</div>`;
-
-  setTimeout(() => {
-    toast.classList.remove("active");
-  }, duration);
-}
-
-document.querySelector(".ver-ganhos").addEventListener("click", () => {
-  window.location.href = "entradas.html";
-});
-
 function atualizarDashboard() {
   if (typeof calcularDashboard === "function") {
     calcularDashboard();
   }
 }
-function criarLimite() {
-  const categoria = document
-    .getElementById("categoriaLimite")
-    .value.trim()
-    .toLowerCase();
 
-  const limite = Number(document.getElementById("limite").value);
-  if (!limite || limite <= 0) return;
+function criarOuAtualizarLimite() {
+  if (!window.appState) return;
 
-  const existente = limites.find((l) => l.categoria === categoria);
+  const categoriaInput = document.getElementById("categoriaLimite");
+  const limiteInput = document.getElementById("limite");
 
-  if (existente) {
-    existente.limite = limite;
-  } else {
-    limites.push({ categoria, limite });
+  if (!categoriaInput || !limiteInput) return;
+
+  const categoria = categoriaInput.value.trim().toLowerCase();
+  const limite = Number(limiteInput.value);
+
+  if (!categoria || limite <= 0) {
+    showToast("Informe categoria e limite válidos.", "error");
+    return;
   }
 
-  salvarLimites();
-  atualizarLimites();
-  document.dispatchEvent(new Event("dadosAtualizados"));
+  const limitesAtuais = window.appState.limites;
+
+  const novosLimites = limitesAtuais.some((l) => l.categoria === categoria)
+    ? limitesAtuais.map((l) =>
+        l.categoria === categoria ? { ...l, limite } : l
+      )
+    : [...limitesAtuais, { categoria, limite }];
+
+  window.appState.setLimites(novosLimites);
+
+  categoriaInput.value = "";
+  limiteInput.value = "";
+  renderizarLimites();
+
+
+  showToast("Limite salvo com sucesso ✔");
+}
+
+function renderizarLimites() {
+  const container = document.getElementById("listaLimites");
+  if (!container || !window.appState) return;
+
+  container.innerHTML = "";
+
+  window.appState.limites.forEach((l) => {
+    const gastoAtual = totalPorCategoria(l.categoria);
+    const percentual =
+      l.limite > 0 ? Math.min((gastoAtual / l.limite) * 100, 100) : 0;
+
+    const div = document.createElement("div");
+    div.className = "limite-card" + (gastoAtual >= l.limite ? " alerta" : "");
+
+    div.innerHTML = `
+      <div class="limite-header">
+        <span>${l.categoria}</span>
+        <div>
+          <span>R$ ${gastoAtual.toFixed(2)} / ${l.limite.toFixed(2)}</span>
+          <button 
+            class="remover-limite"
+            data-categoria="${l.categoria}"
+            aria-label="Remover alerta"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div class="barra">
+        <div class="progresso" style="width:${percentual}%"></div>
+      </div>
+
+      <small>${percentual.toFixed(0)}% do limite</small>
+    `;
+
+    container.appendChild(div);
+  });
 }
 
 function totalPorCategoria(categoria) {
+  if (!window.appState) return 0;
+
+  const gastos = window.appState.gastos;
+
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
@@ -236,7 +438,6 @@ function totalPorCategoria(categoria) {
 
     for (let i = 0; i < g.parcelas; i++) {
       const dataParcela = new Date(g.anoInicio, g.mesInicio + i);
-
       if (
         dataParcela.getMonth() === mesAtual &&
         dataParcela.getFullYear() === anoAtual
@@ -244,76 +445,28 @@ function totalPorCategoria(categoria) {
         total += g.valor / g.parcelas;
       }
     }
-
     return total;
   }, 0);
 }
 
-function atualizarLimites() {
-  const container = document.getElementById("listaLimites");
-  container.innerHTML = "";
-
-  limites.forEach((l) => {
-    const gastoAtual = totalPorCategoria(l.categoria);
-    const percentual = Math.min((gastoAtual / l.limite) * 100, 100);
-
-    const div = document.createElement("div");
-    div.className = "limite-card" + (gastoAtual >= l.limite ? " alerta" : "");
-
-    div.innerHTML = `
-  <div class="limite-header">
-    <span>${l.categoria}</span>
-
-    <div>
-      <span>R$ ${gastoAtual.toFixed(2)} / ${l.limite.toFixed(2)}</span>
-      <button 
-        class="remover-limite"
-        onclick="removerLimite('${l.categoria}')"
-        aria-label="Remover alerta"
-      >
-        ✕
-      </button>
-    </div>
-  </div>
-
-  <div class="barra">
-    <div class="progresso" style="width:${percentual}%"></div>
-  </div>
-
-  <small>${percentual.toFixed(0)}% do limite</small>
-`;
-
-    container.appendChild(div);
-  });
-}
-function salvarLimites() {
-  localStorage.setItem("limites", JSON.stringify(limites));
-}
-
 //remover alerta de limite
 function removerLimite(categoria) {
-  limites = limites.filter((l) => l.categoria !== categoria);
+  if (!window.appState) return;
 
-  salvarLimites();
-  atualizarLimites();
+  const novosLimites = window.appState.limites.filter(
+    (l) => l.categoria !== categoria
+  );
 
-  // avisa score / outras análises
-  document.dispatchEvent(new Event("dadosAtualizados"));
+  // 🔥 estado central + Firestore
+  window.appState.setLimites(novosLimites);
+
+  // 🔴 FORÇA REDESENHO
+  renderizarLimites();
+
+  showToast("Alerta de limite removido ✔");
 }
-document.addEventListener("DOMContentLoaded", () => {
-  atualizarLimites();
-  renderizarCardsFatura();
-  document.dispatchEvent(new Event("dadosAtualizados"));
-});
 
-let cartoes = (JSON.parse(localStorage.getItem("cartoes")) || [])
-  .filter(c => c && typeof c.slug === "string" && c.slug.trim() !== "");
 
-if (!cartoes.length) {
-  cartoes = [
-    { id: "dp", nome: "Dinheiro / Pix", slug: "dp", cor: "#4CAF50" }
-  ];
-}
 
 function criarCardCartaoUsuario(cartao) {
   const container = document.querySelector(".cartoes");
@@ -333,7 +486,9 @@ function criarCardCartaoUsuario(cartao) {
   );
 
   div.innerHTML = `
-  ${cartao.slug !== "dp" ? `
+  ${
+    cartao.slug !== "dp"
+      ? `
     <button 
       class="remover-cartao"
       onclick="removerCartao('${cartao.slug}')"
@@ -341,7 +496,9 @@ function criarCardCartaoUsuario(cartao) {
     >
       ✕
     </button>
-  ` : ""}
+  `
+      : ""
+  }
 
   <p>${cartao.nome}</p>
   <strong>
@@ -352,16 +509,18 @@ function criarCardCartaoUsuario(cartao) {
     Visualizar
   </button>
 `;
+const novoCartaoEl = container.querySelector(".novo-cartao");
 
-  container.insertBefore(div, container.querySelector(".novo-cartao"));
+if (novoCartaoEl) {
+  container.insertBefore(div, novoCartaoEl);
+} else {
+  container.appendChild(div);
 }
-
-
-function salvarCartoes() {
-  localStorage.setItem("cartoes", JSON.stringify(cartoes));
 }
 
 function adicionarCartao() {
+  if (!window.appState) return;
+
   const nomeEl = document.getElementById("cartaoNome");
   const corEl = document.getElementById("cartaoCor");
 
@@ -377,7 +536,9 @@ function adicionarCartao() {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "-");
 
-  if (cartoes.find(c => c.slug === slug)) {
+  const cartoesAtuais = window.appState.cartoes;
+
+  if (cartoesAtuais.some((c) => c.slug === slug)) {
     showToast("Já existe um cartão com esse nome.", "error");
     return;
   }
@@ -386,12 +547,15 @@ function adicionarCartao() {
     id: crypto.randomUUID(),
     nome,
     slug,
-    cor: corEl.value
+    cor: corEl.value,
   };
 
-  cartoes.push(novoCartao);
-  salvarCartoes();
+  const novosCartoes = [...cartoesAtuais, novoCartao];
 
+  // 🔥 estado central + Firestore + eventos
+  window.appState.setCartoes(novosCartoes);
+
+  // 🔄 UI imediata (não depende do reload)
   renderizarSelectBanco();
   criarCardCartaoUsuario(novoCartao);
   renderizarCardsFatura();
@@ -399,14 +563,25 @@ function adicionarCartao() {
   nomeEl.value = "";
 
   showToast(`Cartão "${nome}" criado com sucesso ✔`);
-  document.dispatchEvent(new Event("dadosAtualizados"));
 }
 
-
 function renderizarSelectBanco() {
-  const select = document.getElementById("banco");
+  if (!window.appState) return;
 
-  cartoes.forEach(c => {
+  const select = document.getElementById("banco");
+  if (!select) return; // 🔥 evita erro em outras páginas
+
+  const cartoes = window.appState.cartoes;
+
+  // 🔄 remove opções antigas (exceto placeholder, se existir)
+  Array.from(select.options).forEach((opt) => {
+    if (opt.value && !cartoes.some((c) => c.slug === opt.value)) {
+      opt.remove();
+    }
+  });
+
+  // ➕ adiciona cartões atuais
+  cartoes.forEach((c) => {
     if (select.querySelector(`option[value="${c.slug}"]`)) return;
 
     const option = document.createElement("option");
@@ -415,40 +590,16 @@ function renderizarSelectBanco() {
     select.appendChild(option);
   });
 }
-function atualizarValoresFatura() {
-  const hoje = new Date();
-  const mesAtual = hoje.getMonth();
-  const anoAtual = hoje.getFullYear();
-
-  document.querySelectorAll(".fatura").forEach((card) => {
-    const banco = card.dataset.banco;
-    let total = 0;
-
-    gastos.forEach((g) => {
-      if (g.banco !== banco) return;
-
-      for (let i = 0; i < g.parcelas; i++) {
-        const data = new Date(g.anoInicio, g.mesInicio + i);
-        if (data.getMonth() === mesAtual && data.getFullYear() === anoAtual) {
-          total += g.valor / g.parcelas;
-        }
-      }
-    });
-
-    card.querySelector(".fatura-valor").innerText = total.toFixed(2);
-  });
-}
-
-
 
 function removerCartao(slug) {
+  if (!window.appState) return;
+
   if (slug === "dp") {
     showToast("O cartão Dinheiro / Pix não pode ser removido.", "error");
     return;
   }
 
   const totalFatura = totalFaturaAtualPorCartao(slug);
-
   if (totalFatura > 0) {
     showToast(
       "Este cartão possui fatura em aberto e não pode ser removido.",
@@ -457,42 +608,29 @@ function removerCartao(slug) {
     return;
   }
 
-  const confirmar = confirm(
-    "Remover este cartão?\nEle será removido do app."
-  );
-
+  const confirmar = confirm("Remover este cartão?\nEle será removido do app.");
   if (!confirmar) return;
 
-  // remove do array
-  cartoes = cartoes.filter(c => c.slug !== slug);
-  salvarCartoes();
+  // 🔥 REMOVE DE FORMA IMUTÁVEL E CENTRALIZADA
+  const novosCartoes = window.appState.cartoes.filter((c) => c.slug !== slug);
 
-  // remove card visual
+  // 🔥 ATUALIZA ESTADO + FIRESTORE + EVENTOS
+  window.appState.setCartoes(novosCartoes);
+
+  // 🔥 ATUALIZA UI LOCAL
   const card = document.querySelector(`.cartao[data-banco="${slug}"]`);
   if (card) card.remove();
 
-  // remove do select
   const option = document.querySelector(`#banco option[value="${slug}"]`);
   if (option) option.remove();
 
   showToast("Cartão removido com sucesso ✔");
-  document.dispatchEvent(new Event("dadosAtualizados"));
 }
-
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".remover-cartao");
-  if (!btn) return;
-
-  const cartao = btn.closest(".cartao");
-  const slug = cartao.dataset.banco;
-
-  removerCartao(slug);
-});
-
-
-
-
 function totalFaturaAtualPorCartao(slug) {
+  if (!window.appState) return 0;
+
+  const gastos = window.appState.gastos;
+
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
@@ -514,43 +652,18 @@ function totalFaturaAtualPorCartao(slug) {
     return total;
   }, 0);
 }
+
+
 const corInput = document.getElementById("cartaoCor");
 const preview = document.querySelector(".color-picker .preview");
 
-preview.style.setProperty("--cor", corInput.value);
-
-corInput.addEventListener("input", () => {
+if (corInput && preview) {
   preview.style.setProperty("--cor", corInput.value);
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderizarSelectBanco();
-  renderizarCardsFatura();
-  atualizarLimites();
-
-  cartoes.forEach(c => {
-    if (c.slug !== "dp") criarCardCartaoUsuario(c);
+  corInput.addEventListener("input", () => {
+    preview.style.setProperty("--cor", corInput.value);
   });
-
-  document.dispatchEvent(new Event("dadosAtualizados"));
-});
-
-
-window.addEventListener("storage", (event) => {
-  if (event.key === "gastos") {
-    // re-sincroniza estado
-    gastos = JSON.parse(localStorage.getItem("gastos")) || [];
-
-    renderizarCardsFatura();
-    atualizarLimites();
-    atualizarDashboard();
-
-    document.dispatchEvent(new Event("dadosAtualizados"));
-  }
-});
-
-
-
+}
 
 
 if ("serviceWorker" in navigator) {
@@ -559,3 +672,79 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  // botão ver ganhos
+
+  const btnGF = document.getElementById("btnAdicionarGFixo");
+  if (btnGF) {
+    btnGF.addEventListener("click", adicionarGFixo);
+  }
+  const verGanhos = document.querySelector(".ver-ganhos");
+  if (verGanhos) {
+    verGanhos.addEventListener("click", () => {
+      window.location.href = "entradas.html";
+    });
+  }
+
+  // 🔹 BOTÃO DE ADICIONAR ENTRADA (GANHOS)
+  const btnEntrada = document.getElementById("btnAdicionarEntrada");
+  if (btnEntrada) {
+    btnEntrada.addEventListener("click", adicionarEntrada);
+  }
+
+  // 🔹 CARTÕES — SOMENTE SE O CONTAINER EXISTIR
+  const containerCartoes = document.querySelector(".cartoes");
+  if (containerCartoes) {
+    cartoes.forEach((c) => {
+      if (c.slug !== "dp") criarCardCartaoUsuario(c);
+    });
+  }
+  const btn = document.getElementById("btnGastosFixos");
+  if (btn) {
+    btn.addEventListener("click", irParaGastosFixos);
+  }
+  const btnGasto = document.getElementById("btnAdicionarGasto");
+  if (btnGasto) {
+    btnGasto.addEventListener("click", adicionarGasto);
+  }
+  const btnAC = document.getElementById("btnAdicionarCartao");
+  if (btnAC) {
+    btnAC.addEventListener("click", adicionarCartao);
+  }
+  const btnSL = document.getElementById("btnSalvarLimite");
+  if (btnSL) {
+    btnSL.addEventListener("click", criarOuAtualizarLimite);
+  }
+
+   
+});
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".remover-cartao");
+  if (!btn) return;
+
+  const cartao = btn.closest(".cartao");
+  const slug = cartao.dataset.banco;
+
+  removerCartao(slug);
+});
+
+document.addEventListener("click", (e) => {
+  const btnRL = e.target.closest(".remover-limite");
+  if (!btnRL) return;
+
+  const categoria = btnRL.dataset.categoria;
+  if (!categoria) return;
+
+  removerLimite(categoria);
+
+});
+document.addEventListener("dadosAtualizados", () => {
+  renderizarLimites();
+   renderizarCardsFatura();
+   atualizarDashboard();  
+   renderizarSelectBanco();
+});
+
+  
