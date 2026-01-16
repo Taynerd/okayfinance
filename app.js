@@ -42,6 +42,7 @@ observarLogin(async (user) => {
 
   // 🔔 avisa TODAS as páginas
   dispararAtualizacao();
+  sincronizarCardsComEstado();
 });
 
 /********************************
@@ -564,30 +565,45 @@ function adicionarCartao() {
 
   showToast(`Cartão "${nome}" criado com sucesso ✔`);
 }
-
 function renderizarSelectBanco() {
-  if (!window.appState) return;
-
   const select = document.getElementById("banco");
-  if (!select) return; // 🔥 evita erro em outras páginas
+  if (!select) return;
 
-  const cartoes = window.appState.cartoes;
+  // 1️⃣ bancos vindos do HTML (cards fixos)
+  const bancosHTML = Array.from(
+    document.querySelectorAll(".cartao[data-banco]")
+  ).map(el => ({
+    slug: el.dataset.banco,
+    nome: el.querySelector("p")?.innerText || el.dataset.banco
+  }));
 
-  // 🔄 remove opções antigas (exceto placeholder, se existir)
-  Array.from(select.options).forEach((opt) => {
-    if (opt.value && !cartoes.some((c) => c.slug === opt.value)) {
+  // 2️⃣ bancos vindos do estado (Firestore)
+  const bancosEstado = window.appState?.cartoes || [];
+
+  // 3️⃣ unifica (sem duplicar)
+  const bancosUnicos = {};
+
+  [...bancosHTML, ...bancosEstado].forEach(b => {
+    if (b?.slug) {
+      bancosUnicos[b.slug] = b;
+    }
+  });
+
+  // 4️⃣ remove opções que não existem mais
+  Array.from(select.options).forEach(opt => {
+    if (opt.value && !bancosUnicos[opt.value]) {
       opt.remove();
     }
   });
 
-  // ➕ adiciona cartões atuais
-  cartoes.forEach((c) => {
-    if (select.querySelector(`option[value="${c.slug}"]`)) return;
-
-    const option = document.createElement("option");
-    option.value = c.slug;
-    option.innerText = c.nome;
-    select.appendChild(option);
+  // 5️⃣ adiciona opções faltantes
+  Object.values(bancosUnicos).forEach(b => {
+    if (!select.querySelector(`option[value="${b.slug}"]`)) {
+      const option = document.createElement("option");
+      option.value = b.slug;
+      option.innerText = b.nome;
+      select.appendChild(option);
+    }
   });
 }
 
@@ -719,6 +735,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
    
 });
+function sincronizarCardsComEstado() {
+  if (!window.appState) return;
+
+  const cartoesEstado = window.appState.cartoes || [];
+  const container = document.querySelector(".cartoes");
+  if (!container) return;
+
+  cartoesEstado.forEach(cartao => {
+    // se já existe no HTML, não cria
+    const existe = container.querySelector(
+      `.cartao[data-banco="${cartao.slug}"]`
+    );
+
+    if (!existe) {
+      criarCardCartaoUsuario(cartao);
+    }
+  });
+}
+
 
 document.addEventListener("click", (e) => {
   // remover cartão
@@ -747,4 +782,5 @@ document.addEventListener("dadosAtualizados", () => {
   renderizarCardsFatura();
   renderizarLimites();
   renderizarSelectBanco();
+  sincronizarCardsComEstado();
 });
